@@ -4,7 +4,7 @@
 
 @font-face {
   font-family: 'Ravi';
-  src: url('/fonts/Ravi-VF.ttf') format('truetype');
+  src: url('./assets/fonts/Ravi-VF.ttf') format('truetype');
   font-weight: 100 900;
 }
 

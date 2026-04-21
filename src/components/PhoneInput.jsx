@@ -1,22 +1,7 @@
 // src/components/PhoneInput.jsx
 // Phone number input field with country flag, label, and helper text
 
-const IranFlag = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="24"
-    height="24"
-    className="shrink-0 rounded-sm overflow-hidden"
-  >
-    {/* Iran flag — 3 horizontal bands: green, white, red */}
-    <rect width="24" height="8" fill="#239f40" />
-    <rect y="8" width="24" height="8" fill="#ffffff" />
-    <rect y="16" width="24" height="8" fill="#da0000" />
-    {/* Emblem placeholder — simple circle */}
-    <circle cx="12" cy="12" r="2.5" fill="#239f40" opacity="0.7" />
-  </svg>
-)
+import iranFlag from '../assets/images/IR-flag.svg'
 
 const PhoneInput = ({
   label = 'شماره همراه',
@@ -29,27 +14,27 @@ const PhoneInput = ({
     <div className="flex flex-col gap-1 w-full">
       {/* Label */}
       {label && (
-        <label className="text-[16px] font-semibold leading-8 text-text-strong text-right w-full">
+        <label className="text-base font-semibold leading-8 text-text-strong text-right w-full">
           {label}
         </label>
       )}
 
       {/* Input field */}
-      <div className="bg-bg-base flex items-center justify-end gap-3 px-4 py-4 rounded-2xl w-full">
-        <IranFlag />
+      <div className="bg-bg-base flex items-center flex-row-reverse justify-end gap-3 px-4 py-4 rounded-2xl w-full">
+        <img src={iranFlag} alt="Iran flag" className="w-6 h-6 shrink-0 rounded-sm" />
         <input
           type="tel"
           value={value}
           onChange={onChange}
           placeholder={placeholder}
           dir="rtl"
-          className="flex-1 bg-transparent text-[16px] font-normal leading-8 text-text-strong placeholder:text-text-placeholder text-right outline-none"
+          className="flex-1 bg-transparent text-base font-normal leading-8 text-text-strong placeholder:text-text-placeholder text-left outline-none"
         />
       </div>
 
       {/* Helper text */}
       {helperText && (
-        <p className="text-[13px] font-normal leading-6 text-text-moderate text-right w-full">
+        <p className="text-sm font-normal leading-6 text-text-moderate text-right w-full">
           {helperText}
         </p>
       )}

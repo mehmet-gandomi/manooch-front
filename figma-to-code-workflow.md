@@ -24,6 +24,30 @@ Example output:
 
 ---
 
+## Step 2.5 — Download Assets Immediately
+
+**Critical:** Asset URLs from `get_design_context` expire in 7 days. Download them immediately and save to `src/assets/images/`.
+
+**Process:**
+1. Identify all image URLs in the design context response (look for `figma.com/api/mcp/asset/...`)
+2. Download each asset using `curl` or similar
+3. Save with descriptive names in `src/assets/images/` (e.g., `iran-flag.png`, `logo.svg`, `hero-image.png`)
+4. Update the code to import from local paths
+
+```bash
+# Example download command
+curl "https://www.figma.com/api/mcp/asset/bf369f9d-..." -o src/assets/images/iran-flag.png
+```
+
+```jsx
+// ❌ Never reference expiring URLs
+<img src="https://www.figma.com/api/mcp/asset/..." />
+
+// ✅ Always import locally
+import iranFlag from '../assets/images/iran-flag.png'
+<img src={iranFlag} />
+```
+
 ## Step 2 — Fetch Design Context for Each Screen
 
 For every screen frame, call `get_design_context` with that node ID.
@@ -74,8 +98,46 @@ theme: {
       'bg-base': '#fafafa',            // token/background/frame/base
       'text-white': '#fafafa',         // token/text/default/white
     }
+    fontSize: {
+      base: '16px',   // Default body text
+      sm: '13px',     // Helper text, captions
+      lg: '18px',     // Headings, emphasis
+    }
   }
 }
+```
+
+**When adding new Figma nodes, always check and update `tailwind.config.js`:**
+
+1. **New colors** — If `get_variable_defs` returns new token colors not in the config, add them with meaningful names
+2. **New font sizes** — If the design uses font sizes not in the config (e.g., `20px`, `24px`), add them:
+   ```js
+   fontSize: {
+     base: '16px',
+     sm: '13px',
+     lg: '18px',
+     xl: '20px',    // ← Add new sizes as needed
+     '2xl': '24px',
+   }
+   ```
+3. **New spacing/border radius** — If the design uses consistent values not in Tailwind defaults, add them to `theme.extend`
+
+**Workflow for each new Figma node:**
+```
+1. Call get_design_context on the node
+2. Download all assets immediately → save to src/assets/images/
+3. Call get_variable_defs on the node
+4. Check tailwind.config.js:
+   - Add any new colors from variable defs
+   - Add any new font sizes used in the design
+   - Add any new spacing/radius values if they're consistent patterns
+5. Update components to use:
+   - Named color classes (bg-primary, text-text-strong)
+   - Named font size classes (text-base, text-sm)
+   - Never arbitrary values like text-[16px] or bg-[#hex]
+6. Import assets from local paths, never use figma.com URLs
+```
+
 ```
 
 > **Watch out — Figma fallback colors are often wrong.** The generated code writes hex fallbacks like `var(--token/background/default/primary, #202a37)` where `#202a37` is dark navy, but the real resolved value is `#0068ff` (blue). Always use `get_variable_defs` to get the true value — never copy the fallback hex.
@@ -83,9 +145,11 @@ theme: {
 ```jsx
 // ❌ Never hardcode hex in Tailwind classes
 <button className="bg-[#0068ff] text-[#fafafa] hover:bg-[#0057d6]">
+<p className="text-[16px] text-[#737377]">
 
 // ✅ Always use the named token class
 <button className="bg-primary text-text-white hover:brightness-90">
+<p className="text-base text-text-moderate">
 ```
 
 ---
@@ -198,7 +262,7 @@ For Persian/Arabic projects:
 /* index.css — local font setup */
 @font-face {
   font-family: 'Ravi';
-  src: url('/fonts/Ravi-VF.ttf') format('truetype');
+  src: url('./assets/fonts/Ravi-VF.ttf') format('truetype');
   font-weight: 100 900;
 }
 
@@ -222,10 +286,9 @@ body {
 ## Full Project Structure
 
 ```
-public/
-└── fonts/            ← static font files (e.g. Ravi-VF.ttf) — served at url('/fonts/...')
 src/
 ├── assets/
+│   ├── fonts/            ← local font files (e.g. Ravi-VF.ttf) — referenced via url('./assets/fonts/...')
 │   └── images/           ← downloaded Figma images/icons (never use expiring URLs)
 ├── components/       ← one file per reusable Figma component
 │   ├── Button.jsx
@@ -256,10 +319,13 @@ src/
 ## Rules Summary
 
 1. **Always look at the screenshot** — generated code can lie, the image doesn't
-2. **Always resolve tokens** — never trust hex fallbacks in generated code
-3. **Download assets immediately** — Figma asset URLs expire after 7 days, save to `src/assets/images/`
-4. **Use local fonts** — reference via `@font-face` in `index.css`, not Google Fonts
-5. **Colors are named in `tailwind.config.js`** — map resolved token values to meaningful names there; never hardcode `[#hex]` in component classes
+2. **Always resolve tokens** — never trust hex fallbacks in generated code; call `get_variable_defs` on every new node
+3. **Download assets immediately** — Figma asset URLs expire after 7 days; download and save to `src/assets/images/` right after `get_design_context`
+4. **Use local fonts** — save to `src/assets/fonts/` and reference via `@font-face` in `index.css` with `url('./assets/fonts/...')`, not Google Fonts
+5. **Update `tailwind.config.js` for each new node** — add new colors from variable defs, new font sizes from the design, and any consistent spacing patterns
+6. **Colors are named in `tailwind.config.js`** — map resolved token values to meaningful names there; never hardcode `[#hex]` in component classes
+7. **Font sizes are named in `tailwind.config.js`** — use `text-base`, `text-sm`, `text-lg` instead of arbitrary values like `text-[16px]`
+8. **Import assets locally** — never reference `figma.com/api/mcp/asset/...` URLs directly in code; always import from `src/assets/images/`
 6. **One screen = one route = one file** in `src/screens/`
 7. **One Figma component = one file** in `src/components/`
 8. **Screens own state, components own UI**

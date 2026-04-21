@@ -6,6 +6,11 @@ export default {
       fontFamily: {
         ravi: ['Ravi', 'Vazirmatn', 'sans-serif'],
       },
+      fontSize: {
+        base: '16px',
+        sm: '13px',
+        lg: '18px',
+      },
       colors: {
         primary: '#0068ff',
         'text-strong': '#16161d',

@@ -22,7 +22,7 @@ const Button = ({
       className={`
         flex items-center justify-center gap-3
         px-5 py-2 w-full rounded-2xl
-        text-[16px] font-normal leading-8
+        text-base font-normal leading-8
         transition-colors duration-150
         disabled:opacity-50 disabled:cursor-not-allowed
         ${variants[variant]}
