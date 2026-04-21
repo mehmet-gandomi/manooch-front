@@ -29,13 +29,13 @@ const PhoneInput = ({
     <div className="flex flex-col gap-1 w-full">
       {/* Label */}
       {label && (
-        <label className="text-[16px] font-semibold leading-8 text-[#16161d] text-right w-full">
+        <label className="text-[16px] font-semibold leading-8 text-text-strong text-right w-full">
           {label}
         </label>
       )}
 
       {/* Input field */}
-      <div className="bg-[#fafafa] flex items-center justify-end gap-3 px-4 py-4 rounded-2xl w-full">
+      <div className="bg-bg-base flex items-center justify-end gap-3 px-4 py-4 rounded-2xl w-full">
         <IranFlag />
         <input
           type="tel"
@@ -43,13 +43,13 @@ const PhoneInput = ({
           onChange={onChange}
           placeholder={placeholder}
           dir="rtl"
-          className="flex-1 bg-transparent text-[16px] font-normal leading-8 text-[#16161d] placeholder:text-[#a3a9b6] text-right outline-none"
+          className="flex-1 bg-transparent text-[16px] font-normal leading-8 text-text-strong placeholder:text-text-placeholder text-right outline-none"
         />
       </div>
 
       {/* Helper text */}
       {helperText && (
-        <p className="text-[13px] font-normal leading-6 text-[#737377] text-right w-full">
+        <p className="text-[13px] font-normal leading-6 text-text-moderate text-right w-full">
           {helperText}
         </p>
       )}

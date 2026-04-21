@@ -58,44 +58,34 @@ After `get_design_context`, always call `get_variable_defs` on the same node.
 
 **What to do with them:**
 - Map token names → real hex values
-- Define them as **CSS variables** in `index.css` — do NOT add arbitrary hex values directly in Tailwind classes or in `tailwind.config.js`
-- Reference CSS variables via Tailwind's `var()` support in component classes
-
-```css
-/* index.css — single source of truth for all design tokens */
-:root {
-  --color-primary: #0068ff;        /* Token/Background/Default/Primary */
-  --color-text-strong: #16161d;    /* Token/Text/Default/Strong */
-  --color-text-moderate: #737377;  /* Token/Text/Default/Moderate */
-  --color-text-placeholder: #a3a9b6;
-  --color-bg-main: #fefefe;        /* Token/Background/Frame/Main */
-  --color-bg-base: #fafafa;        /* Token/Background/Frame/Base */
-  --color-text-white: #fafafa;
-}
-```
+- Add each resolved color as a **named entry in `tailwind.config.js`** — do NOT paste raw hex values directly into component class strings
+- Use those names everywhere in components and screens
 
 ```js
-// tailwind.config.js — map names to CSS variables, not raw hex
+// tailwind.config.js — map resolved token values to meaningful names
 theme: {
   extend: {
     colors: {
-      primary: 'var(--color-primary)',
-      'text-strong': 'var(--color-text-strong)',
-      'text-moderate': 'var(--color-text-moderate)',
-      'text-placeholder': 'var(--color-text-placeholder)',
-      'bg-main': 'var(--color-bg-main)',
-      'bg-base': 'var(--color-bg-base)',
+      primary: '#0068ff',              // token/background/default/primary
+      'text-strong': '#16161d',        // token/text/default/strong
+      'text-moderate': '#737377',      // token/text/default/moderate
+      'text-placeholder': '#a3a9b6',   // token/text/default/placeholder
+      'bg-main': '#fefefe',            // token/background/frame/main
+      'bg-base': '#fafafa',            // token/background/frame/base
+      'text-white': '#fafafa',         // token/text/default/white
     }
   }
 }
 ```
+
+> **Watch out — Figma fallback colors are often wrong.** The generated code writes hex fallbacks like `var(--token/background/default/primary, #202a37)` where `#202a37` is dark navy, but the real resolved value is `#0068ff` (blue). Always use `get_variable_defs` to get the true value — never copy the fallback hex.
 
 ```jsx
 // ❌ Never hardcode hex in Tailwind classes
 <button className="bg-[#0068ff] text-[#fafafa] hover:bg-[#0057d6]">
 
 // ✅ Always use the named token class
-<button className="bg-primary text-text-white hover:opacity-90">
+<button className="bg-primary text-text-white hover:brightness-90">
 ```
 
 ---
@@ -137,6 +127,11 @@ Each Figma screen frame → one file in `src/screens/`.
 - Screens pass data down to components as props
 - Never put business logic inside a component
 
+> **Layout trap — Figma's 3-section screen becomes 2-section in web:**
+> Figma mobile screens typically use `justify-between` with three children: **Status Bar** (top) → **Content** (middle) → **CTA Button** (bottom). In web builds the Status Bar is removed (Rule #9), leaving only Content and Button. With `justify-between` and two items, Content snaps to the top — the form appears at the very top instead of centered.
+>
+> **Fix:** Wrap the content section in `flex-1 flex flex-col justify-center` so it fills the available space and stays vertically centered, while the button stays pinned at the bottom.
+
 ```jsx
 // src/screens/RegisterScreen.jsx
 import PhoneInput from '../components/PhoneInput'
@@ -145,8 +140,12 @@ import Button from '../components/Button'
 const RegisterScreen = () => {
   const [phone, setPhone] = useState('')
   return (
-    <div className="min-h-screen bg-bg-main flex flex-col justify-between px-4 py-10">
-      <PhoneInput value={phone} onChange={e => setPhone(e.target.value)} />
+    <div className="min-h-screen bg-bg-main flex flex-col px-4 py-10 max-w-sm mx-auto">
+      {/* flex-1 + justify-center = vertically centered, replacing the removed status bar space */}
+      <div className="flex-1 flex flex-col justify-center">
+        <PhoneInput value={phone} onChange={e => setPhone(e.target.value)} />
+      </div>
+      {/* Button stays pinned at the bottom */}
       <Button onClick={handleSubmit}>ثبت نام</Button>
     </div>
   )
@@ -223,9 +222,10 @@ body {
 ## Full Project Structure
 
 ```
+public/
+└── fonts/            ← static font files (e.g. Ravi-VF.ttf) — served at url('/fonts/...')
 src/
 ├── assets/
-│   ├── fonts/            ← local font files (e.g. Ravi-Regular.woff2)
 │   └── images/           ← downloaded Figma images/icons (never use expiring URLs)
 ├── components/       ← one file per reusable Figma component
 │   ├── Button.jsx
@@ -259,7 +259,7 @@ src/
 2. **Always resolve tokens** — never trust hex fallbacks in generated code
 3. **Download assets immediately** — Figma asset URLs expire after 7 days, save to `src/assets/images/`
 4. **Use local fonts** — reference via `@font-face` in `index.css`, not Google Fonts
-5. **Colors live in CSS variables** — defined in `index.css`, mapped by name in `tailwind.config.js`, never hardcoded as `[#hex]` in classes
+5. **Colors are named in `tailwind.config.js`** — map resolved token values to meaningful names there; never hardcode `[#hex]` in component classes
 6. **One screen = one route = one file** in `src/screens/`
 7. **One Figma component = one file** in `src/components/`
 8. **Screens own state, components own UI**

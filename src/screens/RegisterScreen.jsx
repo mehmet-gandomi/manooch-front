@@ -16,10 +16,10 @@ const RegisterScreen = () => {
   return (
     <div
       dir="rtl"
-      className="min-h-screen bg-[#fefefe] flex flex-col justify-between px-4 py-10 max-w-sm mx-auto"
+      className="min-h-screen bg-bg-main flex flex-col px-4 py-10 max-w-sm mx-auto"
     >
-      {/* Top section — form */}
-      <div className="flex flex-col gap-4">
+      {/* Middle section — form fills remaining space and centers vertically */}
+      <div className="flex-1 flex flex-col justify-center">
         <PhoneInput
           label="شماره همراه"
           placeholder="۰۹۱۵"
@@ -29,12 +29,10 @@ const RegisterScreen = () => {
         />
       </div>
 
-      {/* Bottom section — CTA */}
-      <div className="flex flex-col gap-8">
-        <Button onClick={handleSubmit} variant="primary">
-          ثبت نام
-        </Button>
-      </div>
+      {/* Bottom section — CTA pinned to bottom */}
+      <Button onClick={handleSubmit} variant="primary">
+        ثبت نام
+      </Button>
     </div>
   )
 }

@@ -10,9 +10,9 @@ const Button = ({
 }) => {
   const variants = {
     primary:
-      'bg-[#0068ff] text-[#fafafa] hover:bg-[#0057d6] active:bg-[#0049b8]',
+      'bg-primary text-text-white hover:brightness-90 active:brightness-75',
     secondary:
-      'bg-transparent border-2 border-[#0068ff] text-[#0068ff] hover:bg-[#0068ff]/10',
+      'bg-transparent border-2 border-primary text-primary hover:bg-primary/10',
   }
 
   return (
