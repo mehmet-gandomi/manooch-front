@@ -14,7 +14,7 @@ const OtpScreen = () => {
 
   const handleVerify = () => {
     console.log('Verifying OTP:', otp)
-    // Add verification logic here
+    navigate('/success')
   }
 
   const handleEditPhone = () => {

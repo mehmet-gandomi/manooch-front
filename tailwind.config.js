@@ -10,6 +10,7 @@ export default {
         base: '16px',
         sm: '13px',
         lg: '19px',  // Used for OTP input numbers
+        xl: '23px',  // Used for success screen title
       },
       colors: {
         primary: '#0068ff',
