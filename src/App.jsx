@@ -1,8 +1,18 @@
 // src/App.jsx
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import RegisterScreen from './screens/RegisterScreen'
+import OtpScreen from './screens/OtpScreen'
 
 function App() {
-  return <RegisterScreen />
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/register" replace />} />
+        <Route path="/register" element={<RegisterScreen />} />
+        <Route path="/otp" element={<OtpScreen />} />
+      </Routes>
+    </BrowserRouter>
+  )
 }
 
 export default App

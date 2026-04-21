@@ -9,7 +9,7 @@ export default {
       fontSize: {
         base: '16px',
         sm: '13px',
-        lg: '18px',
+        lg: '19px',  // Used for OTP input numbers
       },
       colors: {
         primary: '#0068ff',
@@ -19,6 +19,7 @@ export default {
         'bg-main': '#fefefe',
         'bg-base': '#fafafa',
         'text-white': '#fafafa',
+        'border-light': '#e0e2e7',
       },
       borderRadius: {
         xl: '16px',

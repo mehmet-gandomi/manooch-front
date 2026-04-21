@@ -1,16 +1,18 @@
 // src/screens/RegisterScreen.jsx
 // Phone number registration screen — assembled from components
 
+import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import PhoneInput from '../components/PhoneInput'
 import Button from '../components/Button'
 
 const RegisterScreen = () => {
   const [phone, setPhone] = useState('')
+  const navigate = useNavigate()
 
   const handleSubmit = () => {
     console.log('Submitting phone:', phone)
-    // Add OTP / navigation logic here
+    navigate('/otp', { state: { phoneNumber: phone } })
   }
 
   return (
