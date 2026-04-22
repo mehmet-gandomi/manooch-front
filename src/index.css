@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  /* Tints an SVG <img> to #737377 (token/text/default/moderate) */
+  .icon-moderate {
+    filter: brightness(0) invert(1) brightness(0.45);
+  }
+}
+
 @font-face {
   font-family: 'Ravi';
   src: url('./assets/fonts/Ravi-VF.ttf') format('truetype');

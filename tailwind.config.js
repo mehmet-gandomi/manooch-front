@@ -7,21 +7,30 @@ export default {
         ravi: ['Ravi', 'Vazirmatn', 'sans-serif'],
       },
       fontSize: {
-        base: '16px',
-        sm: '13px',
-        lg: '19px',  // Used for OTP input numbers
-        xl: '23px',  // Used for success screen title
+        xs:   '11px',  // Admin menu item labels, small tags
+        sm:   '13px',  // Helper text, captions
+        base: '16px',  // Body text
+        lg:   '19px',  // OTP input numbers
+        xl:   '23px',  // Screen titles
       },
       colors: {
         primary: '#0068ff',
         'text-strong': '#16161d',
         'text-moderate': '#737377',
+        'text-weak': '#a2a2a5',           // Admin menu item labels
         'text-placeholder': '#a3a9b6',
+        'text-disable-weak': '#e8e8e8',   // Admin header subtitle
         'bg-main': '#fefefe',
         'bg-base': '#fafafa',
+        'bg-disable': '#babdc1',          // Avatar background
         'text-white': '#fafafa',
         'border-light': '#e0e2e7',
         'red-500': '#ef4444',
+        'header-from': '#202a37',         // Admin header gradient start
+        'header-to': '#171e27',           // Admin header gradient end
+      },
+      maxWidth: {
+        sm: '27rem',
       },
       borderRadius: {
         xl: '16px',

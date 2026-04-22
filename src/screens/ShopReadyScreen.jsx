@@ -9,7 +9,7 @@ const ShopReadyScreen = () => {
   const navigate = useNavigate()
 
   const handleEnterPanel = () => {
-    navigate('/panel')
+    navigate('/admin')
   }
 
   return (
