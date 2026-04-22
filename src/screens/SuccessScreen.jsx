@@ -10,7 +10,7 @@ const SuccessScreen = () => {
 
   const handleContinue = () => {
     console.log('Continue to complete registration')
-    // Navigate to next step (profile completion, etc.)
+    navigate('/profile')
   }
 
   return (

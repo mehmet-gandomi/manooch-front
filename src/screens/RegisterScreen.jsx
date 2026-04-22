@@ -15,6 +15,7 @@ const RegisterScreen = () => {
     navigate('/otp', { state: { phoneNumber: phone } })
   }
 
+
   return (
     <div
       dir="rtl"
@@ -28,6 +29,7 @@ const RegisterScreen = () => {
           helperText="این یک متن راهنمایی برای کمک به کاربر است."
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
+          required
         />
       </div>
 

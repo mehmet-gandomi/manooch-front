@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import RegisterScreen from './screens/RegisterScreen'
 import OtpScreen from './screens/OtpScreen'
 import SuccessScreen from './screens/SuccessScreen'
+import ProfileFormScreen from './screens/ProfileFormScreen'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/register" element={<RegisterScreen />} />
         <Route path="/otp" element={<OtpScreen />} />
         <Route path="/success" element={<SuccessScreen />} />
+        <Route path="/profile" element={<ProfileFormScreen />} />
       </Routes>
     </BrowserRouter>
   )

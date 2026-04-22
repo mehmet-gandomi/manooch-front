@@ -21,6 +21,7 @@ export default {
         'bg-base': '#fafafa',
         'text-white': '#fafafa',
         'border-light': '#e0e2e7',
+        'red-500': '#ef4444',
       },
       borderRadius: {
         xl: '16px',

@@ -9,6 +9,7 @@ const PhoneInput = ({
   helperText = 'این یک متن راهنمایی برای کمک به کاربر است.',
   value = '',
   onChange,
+  required = false,
 }) => {
   return (
     <div className="flex flex-col gap-1 w-full">
@@ -16,6 +17,7 @@ const PhoneInput = ({
       {label && (
         <label className="text-base font-semibold leading-8 text-text-strong text-right w-full">
           {label}
+          {required && <span className="text-red-500 mr-1">*</span>}
         </label>
       )}
 
@@ -28,7 +30,7 @@ const PhoneInput = ({
           onChange={onChange}
           placeholder={placeholder}
           dir="rtl"
-          className="flex-1 bg-transparent text-base font-normal leading-8 text-text-strong placeholder:text-text-placeholder text-left outline-none"
+          className="flex-1 bg-transparent text-base font-normal leading-8 text-text-strong placeholder:text-[#a3a9b6] text-left outline-none"
         />
       </div>
 
