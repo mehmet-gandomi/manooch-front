@@ -60,9 +60,7 @@ const ProfileFormScreen = () => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1)
     } else {
-      // Submit form
-      console.log('Form submitted')
-      // Navigate to home or dashboard
+      navigate('/ready')
     }
   }
 

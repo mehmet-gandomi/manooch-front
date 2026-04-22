@@ -4,6 +4,7 @@ import RegisterScreen from './screens/RegisterScreen'
 import OtpScreen from './screens/OtpScreen'
 import SuccessScreen from './screens/SuccessScreen'
 import ProfileFormScreen from './screens/ProfileFormScreen'
+import ShopReadyScreen from './screens/ShopReadyScreen'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/otp" element={<OtpScreen />} />
         <Route path="/success" element={<SuccessScreen />} />
         <Route path="/profile" element={<ProfileFormScreen />} />
+        <Route path="/ready" element={<ShopReadyScreen />} />
       </Routes>
     </BrowserRouter>
   )
