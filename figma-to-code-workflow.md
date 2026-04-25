@@ -24,51 +24,52 @@ Example output:
 
 ---
 
-## Step 2.5 — Download Assets Immediately
+## Step 2.5 — Let the User Provide Assets
 
-**Critical:** Asset URLs from `get_design_context` expire in 7 days. Download them immediately and save to `src/assets/images/`.
+**Critical:** Asset URLs from `get_design_context` expire in 7 days. Do not wire those URLs directly into the app. Instead, identify the required assets, let the user export them, and use the local files they place in `src/assets/images/`.
 
 **Process:**
 1. Identify all image URLs in the design context response (look for `figma.com/api/mcp/asset/...`)
-2. Download each asset using `curl` or similar
-3. Save with descriptive names in `src/assets/images/` (e.g., `iran-flag.png`, `logo.svg`, `hero-image.png`)
-4. Update the code to import from local paths
-
-```bash
-# Example download command
-curl "https://www.figma.com/api/mcp/asset/bf369f9d-..." -o src/assets/images/iran-flag.png
-```
+2. Turn them into a short asset checklist for the user with descriptive filenames
+3. The user exports those assets and saves them in `src/assets/images/` (the project's `assets/images/` folder)
+4. Once the files exist locally, import them into the code from local paths
+5. If an asset is still missing, use the closest existing local asset as a temporary fallback and explicitly tell the user which asset is missing
+6. Do not create one-off replacement icon files/components (for example `BurgerMenuIcons.jsx`) to redraw missing assets
 
 ```jsx
 // ❌ Never reference expiring URLs
 <img src="https://www.figma.com/api/mcp/asset/..." />
 
-// ✅ Always import locally
+// ✅ Use the local file the user placed in assets/images
 import iranFlag from '../assets/images/iran-flag.png'
 <img src={iranFlag} />
 ```
 
-## Step 2 — Fetch Design Context for Each Screen
+## Step 2 — Fetch Design Context for Each Screen/Node
 
-For every screen frame, call `get_design_context` with that node ID.
+For every screen frame — or any node the user explicitly gives you — call `get_design_context` with that node ID.
 
 **This returns:**
-- A **screenshot** of the screen → use this as the visual reference
+- A **screenshot** of the screen/node → inspect it first and use it as the visual source of truth
 - **Generated React + Tailwind code** → use as a starting point, not final output
-- **Asset URLs** (images, icons, flags, SVGs) → download or reference directly
+- **Asset URLs** (images, icons, flags, SVGs) → turn these into a checklist for the user to export locally
 
 **Rules when reading the generated code:**
+- If the user already provided a screenshot for the node, use that screenshot as the primary visual reference instead of spending time trying to fetch another one
+- Always look at the screenshot for the exact node you are building before trusting spacing, layout, or hierarchy
 - Color hex values in code may be **wrong fallbacks** — always cross-check with design tokens (Step 3)
-- Asset URLs expire in **7 days** — always download them immediately and save to `src/assets/`. Never reference the `figma.com/api/mcp/asset/...` URLs directly in code
+- Asset URLs expire in **7 days** — use them only to identify what the user should export to `src/assets/images/`. Never reference the `figma.com/api/mcp/asset/...` URLs directly in code
+- If a needed icon/image has not been added locally yet, temporarily use the closest existing local asset and report the missing filename to the user
+- Do not create custom replacement icon components/files just to mimic missing assets
 - `data-node-id` attributes in the code are useful for tracing back to Figma — keep them during development, remove before production
 
-**Asset download rule:**
+**Asset handoff rule:**
 ```js
 // ❌ Never do this — URL will expire
 <img src="https://www.figma.com/api/mcp/asset/bf369f9d-..." />
 
-// ✅ Always do this — download first, import locally
-import iranFlag from '../assets/iran-flag.png'
+// ✅ Always do this — user provides the file, then import locally
+import iranFlag from '../assets/images/iran-flag.png'
 <img src={iranFlag} />
 ```
 
@@ -125,19 +126,38 @@ theme: {
 **Workflow for each new Figma node:**
 ```
 1. Call get_design_context on the node
-2. Download all assets immediately → save to src/assets/images/
-3. Call get_variable_defs on the node
-4. Check tailwind.config.js:
+2. If the user already sent a screenshot for that node, use it; otherwise inspect the screenshot returned by the design context
+3. List the required assets and filenames for the user
+4. Use the local files the user places in src/assets/images/
+5. If something is missing, use the closest existing local asset temporarily and tell the user exactly what is missing
+6. Never create one-off icon recreation files/components to replace missing exported assets
+7. If fetching raw Figma node JSON via shell `curl` hangs, truncates, or returns an empty file, use `python3` with `requests` as the fallback way to fetch/save the node JSON locally
+8. Call get_variable_defs on the node
+9. Check tailwind.config.js:
    - Add any new colors from variable defs
    - Add any new font sizes used in the design
    - Add any new spacing/radius values if they're consistent patterns
-5. Update components to use:
+10. Update components to use:
    - Named color classes (bg-primary, text-text-strong)
    - Named font size classes (text-base, text-sm)
    - Never arbitrary values like text-[16px] or bg-[#hex]
-6. Import assets from local paths, never use figma.com URLs
+11. Import assets from local paths only, never use figma.com URLs
 ```
 
+**Node JSON fetch fallback:**
+```bash
+# If curl is unreliable for a large Figma node response, use python3 instead
+python3 - <<'PY'
+import requests
+
+url = 'https://api.figma.com/v1/files/FILE_KEY/nodes?ids=NODE_ID'
+headers = {'X-Figma-Token': 'YOUR_TOKEN'}
+response = requests.get(url, headers=headers, timeout=30)
+response.raise_for_status()
+
+with open('/tmp/node.json', 'w', encoding='utf-8') as f:
+    f.write(response.text)
+PY
 ```
 
 > **Watch out — Figma fallback colors are often wrong.** The generated code writes hex fallbacks like `var(--token/background/default/primary, #202a37)` where `#202a37` is dark navy, but the real resolved value is `#0068ff` (blue). Always use `get_variable_defs` to get the true value — never copy the fallback hex.
@@ -289,7 +309,7 @@ body {
 src/
 ├── assets/
 │   ├── fonts/            ← local font files (e.g. Ravi-VF.ttf) — referenced via url('./assets/fonts/...')
-│   └── images/           ← downloaded Figma images/icons (never use expiring URLs)
+│   └── images/           ← user-exported Figma images/icons (never use expiring URLs)
 ├── components/       ← one file per reusable Figma component
 │   ├── Button.jsx
 │   ├── PhoneInput.jsx
@@ -310,7 +330,7 @@ src/
 | Tool | When to use |
 |---|---|
 | `get_metadata` | First call — map all screens and node IDs |
-| `get_design_context` | Per screen — get screenshot + generated code |
+| `get_design_context` | Per screen/node — get screenshot + generated code + asset list |
 | `get_variable_defs` | Per screen — resolve real token color values |
 | `get_code_connect_suggestions` | When mapping existing components to Figma |
 
@@ -318,15 +338,19 @@ src/
 
 ## Rules Summary
 
-1. **Always look at the screenshot** — generated code can lie, the image doesn't
+1. **Always look at the screenshot for the exact node** — generated code can lie, the image doesn't
 2. **Always resolve tokens** — never trust hex fallbacks in generated code; call `get_variable_defs` on every new node
-3. **Download assets immediately** — Figma asset URLs expire after 7 days; download and save to `src/assets/images/` right after `get_design_context`
-4. **Use local fonts** — save to `src/assets/fonts/` and reference via `@font-face` in `index.css` with `url('./assets/fonts/...')`, not Google Fonts
-5. **Update `tailwind.config.js` for each new node** — add new colors from variable defs, new font sizes from the design, and any consistent spacing patterns
-6. **Colors are named in `tailwind.config.js`** — map resolved token values to meaningful names there; never hardcode `[#hex]` in component classes
-7. **Font sizes are named in `tailwind.config.js`** — use `text-base`, `text-sm`, `text-lg` instead of arbitrary values like `text-[16px]`
-8. **Import assets locally** — never reference `figma.com/api/mcp/asset/...` URLs directly in code; always import from `src/assets/images/`
-6. **One screen = one route = one file** in `src/screens/`
-7. **One Figma component = one file** in `src/components/`
-8. **Screens own state, components own UI**
-9. **No mobile frame, status bar, or home indicator** in web builds
+3. **If the user sends the node screenshot, use it directly** — do not waste time trying to fetch another screenshot unless something is unclear
+4. **The user provides assets** — identify the needed files from `get_design_context`, have the user place them in `src/assets/images/`, then use those local files
+5. **If an asset is missing, use a local fallback and report it** — choose the closest existing local asset temporarily and tell the user the exact missing filename
+6. **Do not hand-draw missing icons in code** — do not create custom icon recreation files/components such as `BurgerMenuIcons.jsx`
+7. **Use `python3` as a fallback for Figma node JSON** — if shell `curl` is unreliable for a node response, fetch/save the JSON with Python `requests`
+8. **Use local fonts** — save to `src/assets/fonts/` and reference via `@font-face` in `index.css` with `url('./assets/fonts/...')`, not Google Fonts
+9. **Update `tailwind.config.js` for each new node** — add new colors from variable defs, new font sizes from the design, and any consistent spacing patterns
+10. **Colors are named in `tailwind.config.js`** — map resolved token values to meaningful names there; never hardcode `[#hex]` in component classes
+11. **Font sizes are named in `tailwind.config.js`** — use `text-base`, `text-sm`, `text-lg` instead of arbitrary values like `text-[16px]`
+12. **Import assets locally** — never reference `figma.com/api/mcp/asset/...` URLs directly in code; always import from `src/assets/images/`
+13. **One screen = one route = one file** in `src/screens/`
+14. **One Figma component = one file** in `src/components/`
+15. **Screens own state, components own UI**
+16. **No mobile frame, status bar, or home indicator** in web builds

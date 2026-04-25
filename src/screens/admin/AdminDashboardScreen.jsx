@@ -7,6 +7,7 @@ import AdminMenuItem from '../../components/admin/AdminMenuItem'
 import AdminStatBox from '../../components/admin/AdminStatBox'
 import AdminBanner from '../../components/admin/AdminBanner'
 import AdminReportRow from '../../components/admin/AdminReportRow'
+import BurgerMenuDrawer from '../../components/burger-menu/BurgerMenuDrawer'
 
 // Header icons
 import bellIcon from '../../assets/images/admin/bell-shake-1.svg'
@@ -51,96 +52,98 @@ const menuItems = [
 
 const AdminDashboardScreen = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
+  const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false)
 
   return (
-    <div
-      dir="rtl"
-      className="min-h-screen bg-bg-main flex flex-col max-w-sm mx-auto"
-    >
-      {/* ── Dark gradient header ── */}
-      <div className="bg-gradient-to-b from-header-from to-header-to rounded-b-2xl px-4 pb-4">
-        {/* Profile row */}
-        <div className="flex items-center justify-between py-4">
+    <>
+      <div
+        dir="rtl"
+        className="min-h-screen bg-bg-main flex flex-col max-w-sm mx-auto"
+      >
+        {/* ── Dark gradient header ── */}
+        <div className="bg-gradient-to-b from-header-from to-header-to rounded-b-2xl px-4 pb-4">
+          {/* Profile row */}
+          <div className="flex items-center justify-between py-4">
+            {/* Avatar + name + hamburger — right */}
+            <div className="flex flex-row-reverse items-center gap-2">
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-text-white leading-6">
+                  امیر رضا قائمی
+                </span>
+                <span className="text-sm font-normal text-text-disable-weak leading-6">
+                  فروشگاه تاج محل
+                </span>
+              </div>
 
-          {/* Avatar + name + hamburger — right */}
-          <div className="flex flex-row-reverse items-center gap-2">
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-text-white leading-6">
-                امیر رضا قائمی
-              </span>
-              <span className="text-sm font-normal text-text-disable-weak leading-6">
-                فروشگاه تاج محل
-              </span>
+              <div className="w-10 h-10 rounded-full bg-bg-disable flex items-center justify-center shrink-0">
+                <img src={userIcon} alt="avatar" className="w-5 h-5" />
+              </div>
+
+              <button type="button" onClick={() => setIsBurgerMenuOpen(true)}>
+                <img src={menuIcon} alt="menu" className="w-6 h-6" />
+              </button>
             </div>
-            {/* Avatar */}
-            <div className="w-10 h-10 rounded-full bg-bg-disable flex items-center justify-center shrink-0">
-              <img src={userIcon} alt="avatar" className="w-5 h-5" />
-            </div>
-            {/* Hamburger */}
-            <button>
-              <img src={menuIcon} alt="menu" className="w-6 h-6" />
+
+            <button type="button">
+              <img src={bellIcon} alt="notifications" className="w-6 h-6" />
             </button>
           </div>
-          {/* Bell — left */}
-          <button>
-            <img src={bellIcon} alt="notifications" className="w-6 h-6" />
-          </button>
-        </div>
 
-        {/* Stat boxes */}
-        <div className="flex gap-2 mb-3">
-          <AdminStatBox
-            icon={usersIcon}
-            value="۶۰۰"
-            label="مشتریان"
-          />
-          <AdminStatBox
-            icon={timerIcon}
-            value="۶۰ روز"
-            label="اعتبار باقی مانده"
-            showArrow
-            arrowIcon={arrowLeftIcon}
-          />
-        </div>
-
-        {/* Banner */}
-        <AdminBanner />
-      </div>
-
-      {/* ── Scrollable content ── */}
-      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-2">
-        {/* Menu grid — 5 items per row, RTL natural flow */}
-        <div className="flex flex-wrap gap-2 gap-y-3 mb-4">
-          {menuItems.map((item) => (
-            <AdminMenuItem
-              key={item.key}
-              icon={item.icon}
-              label={item.label}
-              dashed={item.dashed}
+          <div className="flex gap-2 mb-3">
+            <AdminStatBox
+              icon={usersIcon}
+              value="۶۰۰"
+              label="مشتریان"
             />
-          ))}
+            <AdminStatBox
+              icon={timerIcon}
+              value="۶۰ روز"
+              label="اعتبار باقی مانده"
+              showArrow
+              arrowIcon={arrowLeftIcon}
+            />
+          </div>
+
+          <AdminBanner />
         </div>
 
-        {/* Report rows */}
-        <div className="flex flex-col">
-          <AdminReportRow
-            icon={messageFavoriteIcon}
-            label="نظرات دریافت شده"
-            value="۱۴۳"
-            showDivider
-          />
-          <AdminReportRow
-            icon={ticketIcon}
-            label="تیکت‌های ارسالی به پشتیبانی منوچ"
-            value="۳"
-            showDivider={false}
-          />
+        {/* ── Scrollable content ── */}
+        <div className="flex-1 overflow-y-auto px-4 pt-4 pb-2">
+          <div className="flex flex-wrap gap-2 gap-y-3 mb-4">
+            {menuItems.map((item) => (
+              <AdminMenuItem
+                key={item.key}
+                icon={item.icon}
+                label={item.label}
+                dashed={item.dashed}
+              />
+            ))}
+          </div>
+
+          <div className="flex flex-col">
+            <AdminReportRow
+              icon={messageFavoriteIcon}
+              label="نظرات دریافت شده"
+              value="۱۴۳"
+              showDivider
+            />
+            <AdminReportRow
+              icon={ticketIcon}
+              label="تیکت‌های ارسالی به پشتیبانی منوچ"
+              value="۳"
+              showDivider={false}
+            />
+          </div>
         </div>
+
+        <AdminMenuBar activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
 
-      {/* ── Bottom nav ── */}
-      <AdminMenuBar activeTab={activeTab} onTabChange={setActiveTab} />
-    </div>
+      <BurgerMenuDrawer
+        isOpen={isBurgerMenuOpen}
+        onClose={() => setIsBurgerMenuOpen(false)}
+      />
+    </>
   )
 }
 

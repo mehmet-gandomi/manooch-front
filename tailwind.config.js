@@ -15,8 +15,11 @@ export default {
       },
       colors: {
         primary: '#0068ff',
+        'menu-accent': '#4b45e6',
+        'menu-warning': '#ff7b06',
         'text-strong': '#16161d',
         'text-moderate': '#737377',
+        'text-heading': '#3d4350',
         'text-weak': '#a2a2a5',           // Admin menu item labels
         'text-placeholder': '#a3a9b6',
         'text-disable-weak': '#e8e8e8',   // Admin header subtitle
