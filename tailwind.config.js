@@ -25,6 +25,7 @@ export default {
         'text-disable-weak': '#e8e8e8',   // Admin header subtitle
         'bg-main': '#fefefe',
         'bg-base': '#fafafa',
+        'bg-soft': '#f0f1f3',
         'bg-disable': '#babdc1',          // Avatar background
         'text-white': '#fafafa',
         'border-light': '#e0e2e7',

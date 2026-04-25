@@ -7,6 +7,11 @@
   .icon-moderate {
     filter: brightness(0) invert(1) brightness(0.45);
   }
+
+  /* Tints an SVG <img> to #16161d (token/text/default/strong) */
+  .icon-strong {
+    filter: brightness(0) saturate(100%);
+  }
 }
 
 @font-face {

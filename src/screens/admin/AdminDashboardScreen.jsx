@@ -8,6 +8,7 @@ import AdminStatBox from '../../components/admin/AdminStatBox'
 import AdminBanner from '../../components/admin/AdminBanner'
 import AdminReportRow from '../../components/admin/AdminReportRow'
 import BurgerMenuDrawer from '../../components/burger-menu/BurgerMenuDrawer'
+import AdminBusinessInfoScreen from './AdminBusinessInfoScreen'
 
 // Header icons
 import bellIcon from '../../assets/images/admin/bell-shake-1.svg'
@@ -53,6 +54,16 @@ const menuItems = [
 const AdminDashboardScreen = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false)
+
+  if (activeTab === 'business') {
+    return (
+      <AdminBusinessInfoScreen
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onBack={() => setActiveTab('dashboard')}
+      />
+    )
+  }
 
   return (
     <>
