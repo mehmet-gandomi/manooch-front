@@ -13,6 +13,8 @@ const Button = ({
       'bg-primary text-text-white hover:brightness-90 active:brightness-75',
     secondary:
       'bg-transparent border-2 border-primary text-primary hover:bg-primary/10',
+    admin:
+      'bg-header-from text-text-white hover:bg-header-to active:brightness-90',
   }
 
   return (

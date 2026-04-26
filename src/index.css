@@ -12,6 +12,11 @@
   .icon-strong {
     filter: brightness(0) saturate(100%);
   }
+
+  /* Tints an SVG <img> to the success green used by status chips */
+  .icon-success {
+    filter: brightness(0) saturate(100%) invert(54%) sepia(29%) saturate(1255%) hue-rotate(100deg) brightness(92%) contrast(88%);
+  }
 }
 
 @font-face {

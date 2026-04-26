@@ -1,7 +1,7 @@
 // src/screens/admin/AdminDashboardScreen.jsx
 // Admin panel main dashboard screen
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import AdminMenuBar from '../../components/admin/AdminMenuBar'
 import AdminMenuItem from '../../components/admin/AdminMenuItem'
 import AdminStatBox from '../../components/admin/AdminStatBox'
@@ -10,6 +10,8 @@ import AdminReportRow from '../../components/admin/AdminReportRow'
 import BurgerMenuDrawer from '../../components/burger-menu/BurgerMenuDrawer'
 import AdminBusinessInfoScreen from './AdminBusinessInfoScreen'
 import AdminPluginsScreen from './AdminPluginsScreen'
+import AdminCategoryListScreen from './AdminCategoryListScreen'
+import AdminCategoryFormScreen from './AdminCategoryFormScreen'
 
 // Header icons
 import bellIcon from '../../assets/images/admin/bell-shake-1.svg'
@@ -18,6 +20,8 @@ import userIcon from '../../assets/images/admin/user.svg'
 import timerIcon from '../../assets/images/admin/timer.svg'
 import usersIcon from '../../assets/images/admin/users.svg'
 import arrowLeftIcon from '../../assets/images/admin/arrow-left.svg'
+import categoryPreviewImage from '../../assets/images/admin/Banner.png'
+import categoryPreviewIcon from '../../assets/images/category.svg'
 
 // Menu item icons
 import linkIcon from '../../assets/images/admin/link.svg'
@@ -52,15 +56,163 @@ const menuItems = [
   { icon: addIcon,         label: 'افزونه',     key: 'plugin', dashed: true },
 ]
 
+const initialCategories = [
+  {
+    id: 'pizza-italian',
+    name: 'پیتزا ایتالیایی',
+    description: 'انواع پیتزا های ایتالیایی',
+    order: '1',
+    hasImage: true,
+    hasDescription: true,
+    hasIcon: true,
+    imageSrc: categoryPreviewImage,
+    imageAlt: 'پیتزا ایتالیایی',
+    iconSrc: categoryPreviewIcon,
+    iconAlt: 'ایکن دسته بندی',
+  },
+  {
+    id: 'iranian-food',
+    name: 'غذای ایرانی',
+    description: 'غذاهای اصیل ایرانی',
+    order: '2',
+    hasImage: true,
+    hasDescription: true,
+    hasIcon: true,
+    imageSrc: categoryPreviewImage,
+    imageAlt: 'غذای ایرانی',
+    iconSrc: categoryPreviewIcon,
+    iconAlt: 'ایکن دسته بندی',
+  },
+  {
+    id: 'smashed-burger',
+    name: 'اسمش برگر',
+    description: 'برگرهای دست ساز',
+    order: '3',
+    hasImage: true,
+    hasDescription: true,
+    hasIcon: true,
+    imageSrc: categoryPreviewImage,
+    imageAlt: 'اسمش برگر',
+    iconSrc: categoryPreviewIcon,
+    iconAlt: 'ایکن دسته بندی',
+  },
+  {
+    id: 'pasta',
+    name: 'پاستا',
+    description: 'پاستاهای خانگی',
+    order: '4',
+    hasImage: true,
+    hasDescription: true,
+    hasIcon: true,
+    imageSrc: categoryPreviewImage,
+    imageAlt: 'پاستا',
+    iconSrc: categoryPreviewIcon,
+    iconAlt: 'ایکن دسته بندی',
+  },
+]
+
+const createCategoryId = (value) => {
+  const normalizedValue = value.trim().replace(/\s+/g, '-')
+
+  if (normalizedValue) {
+    return normalizedValue
+  }
+
+  return `category-${Date.now()}`
+}
+
+const mapMenuBarTab = (key) => {
+  switch (key) {
+    case 'business':
+    case 'plugin':
+    case 'dashboard':
+      return key
+    case 'edit':
+    case 'list':
+      return 'category-list'
+    default:
+      return 'dashboard'
+  }
+}
+
 const AdminDashboardScreen = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false)
+  const [categories, setCategories] = useState(initialCategories)
+  const [categoryEditor, setCategoryEditor] = useState({
+    mode: 'edit',
+    categoryId: initialCategories[0].id,
+  })
+
+  const activeCategory = useMemo(
+    () =>
+      categories.find((category) => category.id === categoryEditor.categoryId) ??
+      null,
+    [categories, categoryEditor.categoryId]
+  )
+
+  const handleTabChange = (nextTab) => {
+    setActiveTab(mapMenuBarTab(nextTab))
+  }
+
+  const openCategoryList = () => {
+    setActiveTab('category-list')
+  }
+
+  const handleAddCategory = () => {
+    setCategoryEditor({
+      mode: 'create',
+      categoryId: null,
+    })
+    setActiveTab('category-form')
+  }
+
+  const handleEditCategory = (categoryId) => {
+    setCategoryEditor({
+      mode: 'edit',
+      categoryId,
+    })
+    setActiveTab('category-form')
+  }
+
+  const handleDeleteCategories = (ids) => {
+    setCategories((current) =>
+      current.filter((category) => !ids.includes(category.id))
+    )
+  }
+
+  const handleSubmitCategory = (payload) => {
+    const nextId = categoryEditor.mode === 'create'
+      ? createCategoryId(payload.name)
+      : payload.id
+
+    const nextCategory = {
+      ...payload,
+      id: nextId,
+    }
+
+    setCategories((current) => {
+      if (categoryEditor.mode === 'create') {
+        return [...current, nextCategory]
+      }
+
+      return current.map((category) =>
+        category.id === payload.id ? nextCategory : category
+      )
+    })
+
+    setCategoryEditor({
+      mode: 'edit',
+      categoryId: nextId,
+    })
+    setActiveTab('category-list')
+  }
 
   if (activeTab === 'business') {
     return (
       <AdminBusinessInfoScreen
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         onBack={() => setActiveTab('dashboard')}
       />
     )
@@ -70,8 +222,34 @@ const AdminDashboardScreen = () => {
     return (
       <AdminPluginsScreen
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         onBack={() => setActiveTab('dashboard')}
+      />
+    )
+  }
+
+  if (activeTab === 'category-list') {
+    return (
+      <AdminCategoryListScreen
+        categories={categories}
+        onBack={() => setActiveTab('dashboard')}
+        onTabChange={handleTabChange}
+        onAddCategory={handleAddCategory}
+        onEditCategory={handleEditCategory}
+        onDeleteCategories={handleDeleteCategories}
+      />
+    )
+  }
+
+  if (activeTab === 'category-form') {
+    return (
+      <AdminCategoryFormScreen
+        mode={categoryEditor.mode}
+        category={activeCategory}
+        nextOrder={categories.length + 1}
+        onBack={openCategoryList}
+        onTabChange={handleTabChange}
+        onSubmit={handleSubmitCategory}
       />
     )
   }
@@ -138,9 +316,16 @@ const AdminDashboardScreen = () => {
                 icon={item.icon}
                 label={item.label}
                 dashed={item.dashed}
-                onClick={
-                  item.key === 'plugin' ? () => setActiveTab('plugin') : undefined
-                }
+                onClick={() => {
+                  if (item.key === 'plugin') {
+                    setActiveTab('plugin')
+                    return
+                  }
+
+                  if (item.key === 'category') {
+                    openCategoryList()
+                  }
+                }}
               />
             ))}
           </div>
@@ -161,7 +346,7 @@ const AdminDashboardScreen = () => {
           </div>
         </div>
 
-        <AdminMenuBar activeTab={activeTab} onTabChange={setActiveTab} />
+        <AdminMenuBar activeTab={activeTab} onTabChange={handleTabChange} />
       </div>
 
       <BurgerMenuDrawer
