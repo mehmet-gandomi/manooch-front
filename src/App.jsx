@@ -17,7 +17,7 @@ function App() {
         <Route path="/success" element={<SuccessScreen />} />
         <Route path="/profile" element={<ProfileFormScreen />} />
         <Route path="/ready" element={<ShopReadyScreen />} />
-        <Route path="/admin" element={<AdminDashboardScreen />} />
+        <Route path="/admin/*" element={<AdminDashboardScreen />} />
       </Routes>
     </BrowserRouter>
   )

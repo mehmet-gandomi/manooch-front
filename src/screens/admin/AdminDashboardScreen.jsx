@@ -2,6 +2,7 @@
 // Admin panel main dashboard screen
 
 import { useMemo, useState } from 'react'
+import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 import AdminMenuBar from '../../components/admin/AdminMenuBar'
 import AdminMenuItem from '../../components/admin/AdminMenuItem'
 import AdminStatBox from '../../components/admin/AdminStatBox'
@@ -119,7 +120,10 @@ const initialAttributes = [
     title: 'رنگ لباس',
     order: '1',
     hasDetails: true,
-    values: ['سبز', 'مشکی'],
+    values: [
+      { name: 'سبز', hex: '#37FF00' },
+      { name: 'مشکی', hex: '#16161D' },
+    ],
   },
   {
     id: 'size-clothes',
@@ -183,73 +187,105 @@ const createAttributeId = (value) => {
   return `attribute-${Date.now()}`
 }
 
-const mapMenuBarTab = (key) => {
+const mapMenuBarPath = (key) => {
   switch (key) {
-    case 'business':
-    case 'plugin':
     case 'dashboard':
-      return key
+      return '/admin'
+    case 'business':
+      return '/admin/business'
+    case 'plugin':
+      return '/admin/plugin'
     case 'edit':
     case 'list':
-      return 'category-list'
+      return '/admin/categories'
     default:
-      return 'dashboard'
+      return '/admin'
   }
 }
 
 const AdminDashboardScreen = () => {
-  const [activeTab, setActiveTab] = useState('dashboard')
+  const navigate = useNavigate()
+  const location = useLocation()
   const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false)
   const [categories, setCategories] = useState(initialCategories)
   const [attributes, setAttributes] = useState(initialAttributes)
-  const [categoryEditor, setCategoryEditor] = useState({
-    mode: 'edit',
-    categoryId: initialCategories[0].id,
-  })
-  const [attributeEditor, setAttributeEditor] = useState({
-    mode: 'create',
-    attributeId: null,
-  })
+
+  const routeState = useMemo(() => {
+    if (matchPath('/admin/business', location.pathname)) {
+      return { screen: 'business' }
+    }
+
+    if (matchPath('/admin/plugin', location.pathname)) {
+      return { screen: 'plugin' }
+    }
+
+    if (matchPath('/admin/categories/new', location.pathname)) {
+      return { screen: 'category-form', mode: 'create', categoryId: null }
+    }
+
+    const categoryEditMatch = matchPath('/admin/categories/:categoryId', location.pathname)
+    if (categoryEditMatch) {
+      return {
+        screen: 'category-form',
+        mode: 'edit',
+        categoryId: categoryEditMatch.params.categoryId,
+      }
+    }
+
+    if (matchPath('/admin/categories', location.pathname)) {
+      return { screen: 'category-list' }
+    }
+
+    if (matchPath('/admin/attributes/new', location.pathname)) {
+      return { screen: 'attribute-form', mode: 'create', attributeId: null }
+    }
+
+    const attributeEditMatch = matchPath('/admin/attributes/:attributeId', location.pathname)
+    if (attributeEditMatch) {
+      return {
+        screen: 'attribute-form',
+        mode: 'edit',
+        attributeId: attributeEditMatch.params.attributeId,
+      }
+    }
+
+    if (matchPath('/admin/attributes', location.pathname)) {
+      return { screen: 'attribute-list' }
+    }
+
+    return { screen: 'dashboard' }
+  }, [location.pathname])
 
   const activeCategory = useMemo(
     () =>
-      categories.find((category) => category.id === categoryEditor.categoryId) ??
-      null,
-    [categories, categoryEditor.categoryId]
+      categories.find((category) => category.id === routeState.categoryId) ?? null,
+    [categories, routeState.categoryId]
   )
 
   const activeAttribute = useMemo(
     () =>
-      attributes.find((item) => item.id === attributeEditor.attributeId) ?? null,
-    [attributes, attributeEditor.attributeId]
+      attributes.find((item) => item.id === routeState.attributeId) ?? null,
+    [attributes, routeState.attributeId]
   )
 
   const handleTabChange = (nextTab) => {
-    setActiveTab(mapMenuBarTab(nextTab))
+    navigate(mapMenuBarPath(nextTab))
   }
 
   const openCategoryList = () => {
-    setActiveTab('category-list')
+    navigate('/admin/categories')
   }
 
   const openAttributeList = () => {
-    setActiveTab('attribute-list')
+    navigate('/admin/attributes')
   }
 
   const handleAddCategory = () => {
-    setCategoryEditor({
-      mode: 'create',
-      categoryId: null,
-    })
-    setActiveTab('category-form')
+    navigate('/admin/categories/new')
   }
 
   const handleEditCategory = (categoryId) => {
-    setCategoryEditor({
-      mode: 'edit',
-      categoryId,
-    })
-    setActiveTab('category-form')
+    navigate(`/admin/categories/${categoryId}`)
   }
 
   const handleDeleteCategories = (ids) => {
@@ -259,7 +295,7 @@ const AdminDashboardScreen = () => {
   }
 
   const handleSubmitCategory = (payload) => {
-    const nextId = categoryEditor.mode === 'create'
+    const nextId = routeState.mode === 'create'
       ? createCategoryId(payload.name)
       : payload.id
 
@@ -269,7 +305,7 @@ const AdminDashboardScreen = () => {
     }
 
     setCategories((current) => {
-      if (categoryEditor.mode === 'create') {
+      if (routeState.mode === 'create') {
         return [...current, nextCategory]
       }
 
@@ -278,27 +314,15 @@ const AdminDashboardScreen = () => {
       )
     })
 
-    setCategoryEditor({
-      mode: 'edit',
-      categoryId: nextId,
-    })
-    setActiveTab('category-list')
+    navigate('/admin/categories')
   }
 
   const handleAddAttribute = () => {
-    setAttributeEditor({
-      mode: 'create',
-      attributeId: null,
-    })
-    setActiveTab('attribute-form')
+    navigate('/admin/attributes/new')
   }
 
   const handleEditAttribute = (attributeId) => {
-    setAttributeEditor({
-      mode: 'edit',
-      attributeId,
-    })
-    setActiveTab('attribute-form')
+    navigate(`/admin/attributes/${attributeId}`)
   }
 
   const handleDeleteAttributes = (ids) => {
@@ -308,7 +332,7 @@ const AdminDashboardScreen = () => {
   }
 
   const handleSubmitAttribute = (payload) => {
-    const nextId = attributeEditor.mode === 'create'
+    const nextId = routeState.mode === 'create'
       ? createAttributeId(payload.name)
       : payload.id
 
@@ -318,7 +342,7 @@ const AdminDashboardScreen = () => {
     }
 
     setAttributes((current) => {
-      if (attributeEditor.mode === 'create') {
+      if (routeState.mode === 'create') {
         return [...current, nextAttribute]
       }
 
@@ -327,38 +351,34 @@ const AdminDashboardScreen = () => {
       )
     })
 
-    setAttributeEditor({
-      mode: 'edit',
-      attributeId: nextId,
-    })
-    setActiveTab('attribute-list')
+    navigate('/admin/attributes')
   }
 
-  if (activeTab === 'business') {
+  if (routeState.screen === 'business') {
     return (
       <AdminBusinessInfoScreen
-        activeTab={activeTab}
+        activeTab="business"
         onTabChange={handleTabChange}
-        onBack={() => setActiveTab('dashboard')}
+        onBack={() => navigate('/admin')}
       />
     )
   }
 
-  if (activeTab === 'plugin') {
+  if (routeState.screen === 'plugin') {
     return (
       <AdminPluginsScreen
-        activeTab={activeTab}
+        activeTab="plugin"
         onTabChange={handleTabChange}
-        onBack={() => setActiveTab('dashboard')}
+        onBack={() => navigate('/admin')}
       />
     )
   }
 
-  if (activeTab === 'attribute-list') {
+  if (routeState.screen === 'attribute-list') {
     return (
       <AdminAttributeListScreen
         attributes={attributes}
-        onBack={() => setActiveTab('dashboard')}
+        onBack={() => navigate('/admin')}
         onTabChange={handleTabChange}
         onAddAttribute={handleAddAttribute}
         onEditAttribute={handleEditAttribute}
@@ -367,10 +387,10 @@ const AdminDashboardScreen = () => {
     )
   }
 
-  if (activeTab === 'attribute-form') {
+  if (routeState.screen === 'attribute-form') {
     return (
       <AdminAttributeFormScreen
-        mode={attributeEditor.mode}
+        mode={routeState.mode}
         attribute={activeAttribute}
         nextOrder={attributes.length + 1}
         onBack={openAttributeList}
@@ -380,11 +400,11 @@ const AdminDashboardScreen = () => {
     )
   }
 
-  if (activeTab === 'category-list') {
+  if (routeState.screen === 'category-list') {
     return (
       <AdminCategoryListScreen
         categories={categories}
-        onBack={() => setActiveTab('dashboard')}
+        onBack={() => navigate('/admin')}
         onTabChange={handleTabChange}
         onAddCategory={handleAddCategory}
         onEditCategory={handleEditCategory}
@@ -393,10 +413,10 @@ const AdminDashboardScreen = () => {
     )
   }
 
-  if (activeTab === 'category-form') {
+  if (routeState.screen === 'category-form') {
     return (
       <AdminCategoryFormScreen
-        mode={categoryEditor.mode}
+        mode={routeState.mode}
         category={activeCategory}
         nextOrder={categories.length + 1}
         onBack={openCategoryList}
@@ -459,7 +479,7 @@ const AdminDashboardScreen = () => {
                 dashed={item.dashed}
                 onClick={() => {
                   if (item.key === 'plugin') {
-                    setActiveTab('plugin')
+                    navigate('/admin/plugin')
                     return
                   }
 
