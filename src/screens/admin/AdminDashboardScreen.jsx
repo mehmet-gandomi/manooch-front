@@ -187,6 +187,17 @@ const createAttributeId = (value) => {
   return `attribute-${Date.now()}`
 }
 
+const normalizeBusinessTab = (value) => {
+  switch (value) {
+    case 'contact':
+    case 'links':
+      return value
+    case 'details':
+    default:
+      return 'details'
+  }
+}
+
 const mapMenuBarPath = (key) => {
   switch (key) {
     case 'dashboard':
@@ -211,8 +222,16 @@ const AdminDashboardScreen = () => {
   const [attributes, setAttributes] = useState(initialAttributes)
 
   const routeState = useMemo(() => {
+    const businessTabMatch = matchPath('/admin/business/:businessTab', location.pathname)
+    if (businessTabMatch) {
+      return {
+        screen: 'business',
+        businessTab: normalizeBusinessTab(businessTabMatch.params.businessTab),
+      }
+    }
+
     if (matchPath('/admin/business', location.pathname)) {
-      return { screen: 'business' }
+      return { screen: 'business', businessTab: 'details' }
     }
 
     if (matchPath('/admin/plugin', location.pathname)) {
@@ -270,6 +289,14 @@ const AdminDashboardScreen = () => {
 
   const handleTabChange = (nextTab) => {
     navigate(mapMenuBarPath(nextTab))
+  }
+
+  const handleBusinessTabChange = (nextTab) => {
+    navigate(
+      nextTab === 'details'
+        ? '/admin/business'
+        : `/admin/business/${normalizeBusinessTab(nextTab)}`
+    )
   }
 
   const openCategoryList = () => {
@@ -358,6 +385,8 @@ const AdminDashboardScreen = () => {
     return (
       <AdminBusinessInfoScreen
         activeTab="business"
+        initialBusinessTab={routeState.businessTab}
+        onBusinessTabChange={handleBusinessTabChange}
         onTabChange={handleTabChange}
         onBack={() => navigate('/admin')}
       />
@@ -478,6 +507,11 @@ const AdminDashboardScreen = () => {
                 label={item.label}
                 dashed={item.dashed}
                 onClick={() => {
+                  if (item.key === 'link') {
+                    navigate('/admin/business/links')
+                    return
+                  }
+
                   if (item.key === 'plugin') {
                     navigate('/admin/plugin')
                     return

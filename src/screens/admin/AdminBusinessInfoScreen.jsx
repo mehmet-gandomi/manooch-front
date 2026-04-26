@@ -1,7 +1,7 @@
 // src/screens/admin/AdminBusinessInfoScreen.jsx
 // Business information management screen based on the Figma business node
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import AdminMenuBar from '../../components/admin/AdminMenuBar'
 import Button from '../../components/Button'
 import Dropdown from '../../components/Dropdown'
@@ -38,10 +38,12 @@ const linkFields = [
 
 const AdminBusinessInfoScreen = ({
   activeTab = 'business',
+  initialBusinessTab = 'details',
+  onBusinessTabChange,
   onTabChange,
   onBack,
 }) => {
-  const [activeBusinessTab, setActiveBusinessTab] = useState('details')
+  const [activeBusinessTab, setActiveBusinessTab] = useState(initialBusinessTab)
   const [formValues, setFormValues] = useState({
     businessName: '',
     category: '',
@@ -64,6 +66,10 @@ const AdminBusinessInfoScreen = ({
     eitaa: '',
   })
 
+  useEffect(() => {
+    setActiveBusinessTab(initialBusinessTab)
+  }, [initialBusinessTab])
+
   const currentBusinessTab = useMemo(
     () =>
       businessTabs.find((tab) => tab.key === activeBusinessTab) ?? businessTabs[0],
@@ -82,6 +88,11 @@ const AdminBusinessInfoScreen = ({
       ...prev,
       showAreaRange: !prev.showAreaRange,
     }))
+  }
+
+  const handleBusinessTabChange = (nextTab) => {
+    setActiveBusinessTab(nextTab)
+    onBusinessTabChange?.(nextTab)
   }
 
   const renderBusinessTabContent = () => {
@@ -283,7 +294,7 @@ const AdminBusinessInfoScreen = ({
             <button
               key={tab.key}
               type="button"
-              onClick={() => setActiveBusinessTab(tab.key)}
+              onClick={() => handleBusinessTabChange(tab.key)}
               className={`flex-1 rounded-xl px-3 py-2 text-center text-sm font-normal leading-6 ${
                 activeBusinessTab === tab.key
                   ? 'bg-bg-soft text-text-heading'

@@ -545,12 +545,10 @@ const AdminAttributeFormScreen = ({
             onChange={handleFieldChange('colorValueName')}
           />
 
-          <div
-            className="mt-4 rounded-xl p-4"
-            style={{ backgroundColor: selectedHueHex }}
-          >
+          <div className="mt-4">
             <div
-              className="relative h-40 rounded-lg"
+              className="relative h-40 overflow-hidden rounded-xl"
+              style={{ backgroundColor: selectedHueHex }}
             >
               <div
                 ref={colorAreaRef}
@@ -564,7 +562,7 @@ const AdminAttributeFormScreen = ({
                 onPointerMove={handleColorAreaPointerMove}
                 onPointerUp={handleColorAreaPointerEnd}
                 onPointerCancel={handleColorAreaPointerEnd}
-                className="h-full rounded-lg touch-none"
+                className="h-full touch-none"
                 style={{
                   backgroundImage:
                     'linear-gradient(to top, #000000, rgba(0, 0, 0, 0)), linear-gradient(to right, #FFFFFF, rgba(255, 255, 255, 0))',
