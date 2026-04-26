@@ -12,8 +12,9 @@ import AdminBusinessInfoScreen from './AdminBusinessInfoScreen'
 import AdminPluginsScreen from './AdminPluginsScreen'
 import AdminCategoryListScreen from './AdminCategoryListScreen'
 import AdminCategoryFormScreen from './AdminCategoryFormScreen'
+import AdminAttributeListScreen from './AdminAttributeListScreen'
+import AdminAttributeFormScreen from './AdminAttributeFormScreen'
 
-// Header icons
 import bellIcon from '../../assets/images/admin/bell-shake-1.svg'
 import menuIcon from '../../assets/images/admin/menu.svg'
 import userIcon from '../../assets/images/admin/user.svg'
@@ -23,7 +24,6 @@ import arrowLeftIcon from '../../assets/images/admin/arrow-left.svg'
 import categoryPreviewImage from '../../assets/images/admin/Banner.png'
 import categoryPreviewIcon from '../../assets/images/category.svg'
 
-// Menu item icons
 import linkIcon from '../../assets/images/admin/link.svg'
 import colorsSquareIcon from '../../assets/images/admin/colors-square.svg'
 import categoryIcon from '../../assets/images/admin/category.svg'
@@ -37,23 +37,22 @@ import creditCardsIcon from '../../assets/images/admin/credit-cards.svg'
 import addIcon from '../../assets/images/admin/add.svg'
 import chatIcon from '../../assets/images/admin/chat-bubble-circle-pen.svg'
 
-// Report icons
 import messageFavoriteIcon from '../../assets/images/admin/message-favorite.svg'
 import ticketIcon from '../../assets/images/admin/ticket.svg'
 
 const menuItems = [
-  { icon: linkIcon,        label: 'لینکدونی',   key: 'link' },
-  { icon: colorsSquareIcon,label: 'ویژگی‌ها',   key: 'features' },
-  { icon: categoryIcon,    label: 'دسته‌بندی',  key: 'category' },
-  { icon: wrenchIcon,      label: 'خدمات',      key: 'services' },
-  { icon: addToBoxIcon,    label: 'کالا',       key: 'product' },
-  { icon: panoramaIcon,    label: 'بنر',        key: 'banner' },
-  { icon: qrCodeIcon,      label: 'QR Code',    key: 'qr' },
-  { icon: albumIcon,       label: 'گالری',      key: 'gallery' },
-  { icon: bellShakeIcon,   label: 'اخبار',      key: 'news' },
+  { icon: linkIcon, label: 'لینکدونی', key: 'link' },
+  { icon: colorsSquareIcon, label: 'ویژگی‌ها', key: 'attributes' },
+  { icon: categoryIcon, label: 'دسته‌بندی', key: 'category' },
+  { icon: wrenchIcon, label: 'خدمات', key: 'services' },
+  { icon: addToBoxIcon, label: 'کالا', key: 'product' },
+  { icon: panoramaIcon, label: 'بنر', key: 'banner' },
+  { icon: qrCodeIcon, label: 'QR Code', key: 'qr' },
+  { icon: albumIcon, label: 'گالری', key: 'gallery' },
+  { icon: bellShakeIcon, label: 'اخبار', key: 'news' },
   { icon: creditCardsIcon, label: 'کارت بانکی', key: 'card' },
-  { icon: chatIcon,        label: 'سوالات',     key: 'faq' },
-  { icon: addIcon,         label: 'افزونه',     key: 'plugin', dashed: true },
+  { icon: chatIcon, label: 'سوالات', key: 'faq' },
+  { icon: addIcon, label: 'افزونه', key: 'plugin', dashed: true },
 ]
 
 const initialCategories = [
@@ -111,6 +110,59 @@ const initialCategories = [
   },
 ]
 
+const initialAttributes = [
+  {
+    id: 'color-clothes',
+    type: 'color',
+    typeLabel: 'رنگ',
+    name: 'رنگ لباس',
+    title: 'رنگ لباس',
+    order: '1',
+    hasDetails: true,
+    values: ['سبز', 'مشکی'],
+  },
+  {
+    id: 'size-clothes',
+    type: 'size',
+    typeLabel: 'سایز',
+    name: 'سایز لباس',
+    title: 'سایز لباس',
+    order: '2',
+    hasDetails: true,
+    values: ['XXL', 'XL', 'L', 'MD', 'SM'],
+  },
+  {
+    id: 'weight',
+    type: 'text',
+    typeLabel: 'متن',
+    name: 'وزن',
+    title: 'وزن',
+    order: '3',
+    hasDetails: true,
+    values: [],
+  },
+  {
+    id: 'height',
+    type: 'text',
+    typeLabel: 'متن',
+    name: 'قد',
+    title: 'قد',
+    order: '4',
+    hasDetails: true,
+    values: [],
+  },
+]
+
+const adminReports = [
+  { icon: messageFavoriteIcon, label: 'نظرات دریافت شده', value: '۱۴۳' },
+  {
+    icon: ticketIcon,
+    label: 'تیکت‌های ارسالی به پشتیبانی منوچ',
+    value: '۳',
+    showDivider: false,
+  },
+]
+
 const createCategoryId = (value) => {
   const normalizedValue = value.trim().replace(/\s+/g, '-')
 
@@ -119,6 +171,16 @@ const createCategoryId = (value) => {
   }
 
   return `category-${Date.now()}`
+}
+
+const createAttributeId = (value) => {
+  const normalizedValue = value.trim().replace(/\s+/g, '-').toLowerCase()
+
+  if (normalizedValue) {
+    return normalizedValue
+  }
+
+  return `attribute-${Date.now()}`
 }
 
 const mapMenuBarTab = (key) => {
@@ -139,9 +201,14 @@ const AdminDashboardScreen = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false)
   const [categories, setCategories] = useState(initialCategories)
+  const [attributes, setAttributes] = useState(initialAttributes)
   const [categoryEditor, setCategoryEditor] = useState({
     mode: 'edit',
     categoryId: initialCategories[0].id,
+  })
+  const [attributeEditor, setAttributeEditor] = useState({
+    mode: 'create',
+    attributeId: null,
   })
 
   const activeCategory = useMemo(
@@ -151,12 +218,22 @@ const AdminDashboardScreen = () => {
     [categories, categoryEditor.categoryId]
   )
 
+  const activeAttribute = useMemo(
+    () =>
+      attributes.find((item) => item.id === attributeEditor.attributeId) ?? null,
+    [attributes, attributeEditor.attributeId]
+  )
+
   const handleTabChange = (nextTab) => {
     setActiveTab(mapMenuBarTab(nextTab))
   }
 
   const openCategoryList = () => {
     setActiveTab('category-list')
+  }
+
+  const openAttributeList = () => {
+    setActiveTab('attribute-list')
   }
 
   const handleAddCategory = () => {
@@ -208,6 +285,55 @@ const AdminDashboardScreen = () => {
     setActiveTab('category-list')
   }
 
+  const handleAddAttribute = () => {
+    setAttributeEditor({
+      mode: 'create',
+      attributeId: null,
+    })
+    setActiveTab('attribute-form')
+  }
+
+  const handleEditAttribute = (attributeId) => {
+    setAttributeEditor({
+      mode: 'edit',
+      attributeId,
+    })
+    setActiveTab('attribute-form')
+  }
+
+  const handleDeleteAttributes = (ids) => {
+    setAttributes((current) =>
+      current.filter((attribute) => !ids.includes(attribute.id))
+    )
+  }
+
+  const handleSubmitAttribute = (payload) => {
+    const nextId = attributeEditor.mode === 'create'
+      ? createAttributeId(payload.name)
+      : payload.id
+
+    const nextAttribute = {
+      ...payload,
+      id: nextId,
+    }
+
+    setAttributes((current) => {
+      if (attributeEditor.mode === 'create') {
+        return [...current, nextAttribute]
+      }
+
+      return current.map((attribute) =>
+        attribute.id === payload.id ? nextAttribute : attribute
+      )
+    })
+
+    setAttributeEditor({
+      mode: 'edit',
+      attributeId: nextId,
+    })
+    setActiveTab('attribute-list')
+  }
+
   if (activeTab === 'business') {
     return (
       <AdminBusinessInfoScreen
@@ -224,6 +350,32 @@ const AdminDashboardScreen = () => {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         onBack={() => setActiveTab('dashboard')}
+      />
+    )
+  }
+
+  if (activeTab === 'attribute-list') {
+    return (
+      <AdminAttributeListScreen
+        attributes={attributes}
+        onBack={() => setActiveTab('dashboard')}
+        onTabChange={handleTabChange}
+        onAddAttribute={handleAddAttribute}
+        onEditAttribute={handleEditAttribute}
+        onDeleteAttributes={handleDeleteAttributes}
+      />
+    )
+  }
+
+  if (activeTab === 'attribute-form') {
+    return (
+      <AdminAttributeFormScreen
+        mode={attributeEditor.mode}
+        attribute={activeAttribute}
+        nextOrder={attributes.length + 1}
+        onBack={openAttributeList}
+        onTabChange={handleTabChange}
+        onSubmit={handleSubmitAttribute}
       />
     )
   }
@@ -256,45 +408,35 @@ const AdminDashboardScreen = () => {
 
   return (
     <>
-      <div
-        dir="rtl"
-        className="min-h-screen bg-bg-main flex flex-col max-w-sm mx-auto"
-      >
-        {/* ── Dark gradient header ── */}
-        <div className="bg-gradient-to-b from-header-from to-header-to rounded-b-2xl px-4 pb-4">
-          {/* Profile row */}
+      <div dir="rtl" className="mx-auto flex min-h-screen max-w-sm flex-col bg-bg-main">
+        <div className="rounded-b-2xl bg-gradient-to-b from-header-from to-header-to px-4 pb-4">
           <div className="flex items-center justify-between py-4">
-            {/* Avatar + name + hamburger — right */}
             <div className="flex flex-row-reverse items-center gap-2">
+
               <div className="flex flex-col">
-                <span className="text-sm font-semibold text-text-white leading-6">
+                <span className="text-sm font-semibold leading-6 text-text-white">
                   امیر رضا قائمی
                 </span>
-                <span className="text-sm font-normal text-text-disable-weak leading-6">
+                <span className="text-sm font-normal leading-6 text-text-disable-weak">
                   فروشگاه تاج محل
                 </span>
               </div>
 
-              <div className="w-10 h-10 rounded-full bg-bg-disable flex items-center justify-center shrink-0">
-                <img src={userIcon} alt="avatar" className="w-5 h-5" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-bg-disable">
+                <img src={userIcon} alt="avatar" className="h-5 w-5" />
               </div>
 
               <button type="button" onClick={() => setIsBurgerMenuOpen(true)}>
-                <img src={menuIcon} alt="menu" className="w-6 h-6" />
+                <img src={menuIcon} alt="menu" className="h-6 w-6" />
               </button>
             </div>
-
             <button type="button">
-              <img src={bellIcon} alt="notifications" className="w-6 h-6" />
+              <img src={bellIcon} alt="notifications" className="h-6 w-6" />
             </button>
           </div>
 
-          <div className="flex gap-2 mb-3">
-            <AdminStatBox
-              icon={usersIcon}
-              value="۶۰۰"
-              label="مشتریان"
-            />
+          <div className="mb-3 flex gap-2">
+            <AdminStatBox icon={usersIcon} value="۶۰۰" label="مشتریان" />
             <AdminStatBox
               icon={timerIcon}
               value="۶۰ روز"
@@ -307,9 +449,8 @@ const AdminDashboardScreen = () => {
           <AdminBanner />
         </div>
 
-        {/* ── Scrollable content ── */}
         <div className="flex-1 overflow-y-auto px-4 pt-4 pb-2">
-          <div className="flex flex-wrap gap-2 gap-y-3 mb-4">
+          <div className="mb-4 flex flex-wrap gap-2 gap-y-3">
             {menuItems.map((item) => (
               <AdminMenuItem
                 key={item.key}
@@ -324,6 +465,11 @@ const AdminDashboardScreen = () => {
 
                   if (item.key === 'category') {
                     openCategoryList()
+                    return
+                  }
+
+                  if (item.key === 'attributes') {
+                    openAttributeList()
                   }
                 }}
               />
@@ -331,22 +477,19 @@ const AdminDashboardScreen = () => {
           </div>
 
           <div className="flex flex-col">
-            <AdminReportRow
-              icon={messageFavoriteIcon}
-              label="نظرات دریافت شده"
-              value="۱۴۳"
-              showDivider
-            />
-            <AdminReportRow
-              icon={ticketIcon}
-              label="تیکت‌های ارسالی به پشتیبانی منوچ"
-              value="۳"
-              showDivider={false}
-            />
+            {adminReports.map((report) => (
+              <AdminReportRow
+                key={report.label}
+                icon={report.icon}
+                label={report.label}
+                value={report.value}
+                showDivider={report.showDivider}
+              />
+            ))}
           </div>
         </div>
 
-        <AdminMenuBar activeTab={activeTab} onTabChange={handleTabChange} />
+        <AdminMenuBar activeTab="dashboard" onTabChange={handleTabChange} />
       </div>
 
       <BurgerMenuDrawer

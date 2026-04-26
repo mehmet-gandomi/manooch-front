@@ -8,12 +8,13 @@ const AdminScreenHeader = ({
   title,
   subtitle,
   onBack,
+  iconClassName = '',
 }) => {
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="flex flex-1 flex-row items-center gap-3 text-right">
         {icon ? (
-          <img src={icon} alt="" className="mt-1 h-8 w-8 shrink-0" />
+          <img src={icon} alt="" className={`mt-1 h-8 w-8 shrink-0 ${iconClassName}`.trim()} />
         ) : null}
 
         <div>
