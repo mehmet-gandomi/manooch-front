@@ -32,7 +32,7 @@ const AdminAttributeRow = ({
                   <h2 className="text-base font-bold leading-8 text-text-strong min-w-[80px]">
                     {attribute.name}
                   </h2>
-                  <div class="border-l h-5 mr-8 ml-4"></div>
+                  <div className="border-l h-5 mr-8 ml-4"></div>
                   <div className="flex items-center gap-2">
                     {attribute.typeLabel ? (
                       <span className="rounded-lg bg-bg-soft px-2 py-1 text-xs font-normal leading-5 text-text-moderate">

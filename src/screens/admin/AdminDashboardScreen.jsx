@@ -15,6 +15,7 @@ import AdminCategoryListScreen from './AdminCategoryListScreen'
 import AdminCategoryFormScreen from './AdminCategoryFormScreen'
 import AdminAttributeListScreen from './AdminAttributeListScreen'
 import AdminAttributeFormScreen from './AdminAttributeFormScreen'
+import AdminProductListScreen from './AdminProductListScreen'
 
 import bellIcon from '../../assets/images/admin/bell-shake-1.svg'
 import menuIcon from '../../assets/images/admin/menu.svg'
@@ -22,7 +23,7 @@ import userIcon from '../../assets/images/admin/user.svg'
 import timerIcon from '../../assets/images/admin/timer.svg'
 import usersIcon from '../../assets/images/admin/users.svg'
 import arrowLeftIcon from '../../assets/images/admin/arrow-left.svg'
-import categoryPreviewImage from '../../assets/images/admin/Banner.png'
+import categoryPreviewImage from '../../assets/images/admin/product/pizza.jpg'
 import categoryPreviewIcon from '../../assets/images/category.svg'
 
 import linkIcon from '../../assets/images/admin/link.svg'
@@ -157,6 +158,49 @@ const initialAttributes = [
   },
 ]
 
+const initialProducts = [
+  {
+    id: 'pizza-vagano-1',
+    name: 'پیتزا وگنو',
+    code: 43897,
+    categoryName: 'پیتزا ایتالیایی',
+    price: 700000,
+    discountPrice: null,
+    imageSrc: categoryPreviewImage,
+    imageAlt: 'پیتزا وگنو',
+  },
+  {
+    id: 'pizza-vagano-2',
+    name: 'پیتزا وگنو',
+    code: 43897,
+    categoryName: 'پیتزا ایتالیایی',
+    price: 690000,
+    discountPrice: 700000,
+    imageSrc: categoryPreviewImage,
+    imageAlt: 'پیتزا وگنو',
+  },
+  {
+    id: 'pizza-vagano-3',
+    name: 'پیتزا وگنو',
+    code: 43897,
+    categoryName: 'پیتزا ایتالیایی',
+    price: 700000,
+    discountPrice: null,
+    imageSrc: categoryPreviewImage,
+    imageAlt: 'پیتزا وگنو',
+  },
+  {
+    id: 'pizza-vagano-4',
+    name: 'پیتزا وگنو',
+    code: 43897,
+    categoryName: 'پیتزا ایتالیایی',
+    price: 700000,
+    discountPrice: null,
+    imageSrc: categoryPreviewImage,
+    imageAlt: 'پیتزا وگنو',
+  },
+]
+
 const adminReports = [
   { icon: messageFavoriteIcon, label: 'نظرات دریافت شده', value: '۱۴۳' },
   {
@@ -220,6 +264,8 @@ const AdminDashboardScreen = () => {
   const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false)
   const [categories, setCategories] = useState(initialCategories)
   const [attributes, setAttributes] = useState(initialAttributes)
+  const [products, setProducts] = useState(initialProducts)
+  const [productCount, setProductCount] = useState(230)
 
   const routeState = useMemo(() => {
     const businessTabMatch = matchPath('/admin/business/:businessTab', location.pathname)
@@ -270,6 +316,10 @@ const AdminDashboardScreen = () => {
 
     if (matchPath('/admin/attributes', location.pathname)) {
       return { screen: 'attribute-list' }
+    }
+
+    if (matchPath('/admin/products', location.pathname)) {
+      return { screen: 'product-list' }
     }
 
     return { screen: 'dashboard' }
@@ -358,6 +408,17 @@ const AdminDashboardScreen = () => {
     )
   }
 
+  const openProductList = () => {
+    navigate('/admin/products')
+  }
+
+  const handleDeleteProducts = (ids) => {
+    setProducts((current) =>
+      current.filter((product) => !ids.includes(product.id))
+    )
+    setProductCount((current) => Math.max(0, current - ids.length))
+  }
+
   const handleSubmitAttribute = (payload) => {
     const nextId = routeState.mode === 'create'
       ? createAttributeId(payload.name)
@@ -412,6 +473,18 @@ const AdminDashboardScreen = () => {
         onAddAttribute={handleAddAttribute}
         onEditAttribute={handleEditAttribute}
         onDeleteAttributes={handleDeleteAttributes}
+      />
+    )
+  }
+
+  if (routeState.screen === 'product-list') {
+    return (
+      <AdminProductListScreen
+        products={products}
+        totalCount={productCount}
+        onBack={() => navigate('/admin')}
+        onTabChange={handleTabChange}
+        onDeleteProducts={handleDeleteProducts}
       />
     )
   }
@@ -519,6 +592,11 @@ const AdminDashboardScreen = () => {
 
                   if (item.key === 'category') {
                     openCategoryList()
+                    return
+                  }
+
+                  if (item.key === 'product') {
+                    openProductList()
                     return
                   }
 
