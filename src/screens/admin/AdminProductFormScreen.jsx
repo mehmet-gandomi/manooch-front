@@ -16,7 +16,7 @@ const plainNumberFormatter = new Intl.NumberFormat('fa-IR', {
   useGrouping: false,
 })
 
-const voiceBarHeights = [10, 18, 12, 20, 14, 24, 16, 22, 14, 18, 10, 16, 12, 20, 10, 18, 12, 20, 14, 24, 16, 22, 14, 18, 10, 16, 12, 20, 10, 18, 12, 20, 14, 24, 16, 22, 14, 18, 10, 16, 12, 20, 10, 18, 12, 20, 20, 10, 18, 12, 20, 12, 20]
+const voiceBarHeights = [22, 22, 14, 18, 10, 16, 12, 20, 10, 18, 12, 20, 14, 24, 16, 22, 14, 18, 10, 16, 12, 20, 10, 18, 12, 20, 14, 24, 16, 22, 14, 18, 10, 16, 12, 20, 10, 18, 12, 20, 20, 10, 18, 12, 20, 12, 20]
 
 const toEnglishDigits = (value = '') =>
   value
@@ -262,7 +262,7 @@ const VoiceDescriptionField = ({ hasRecording, onToggle, onClear }) => (
       ضبط توضیحات
     </label>
 
-    <div className="flex items-center gap-3 bg-bg-base rounded-xl p-3">
+    <div className="flex items-center gap-3 bg-bg-base rounded-xl p-3 overflow-hidden justify-between">
       <button
         type="button"
         onClick={hasRecording ? onClear : onToggle}
@@ -281,7 +281,7 @@ const VoiceDescriptionField = ({ hasRecording, onToggle, onClear }) => (
         onClick={onToggle}
         className="flex-1 rounded-xl"
       >
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-0.5 justify-center">
           {voiceBarHeights.map((height, index) => (
             <span
               key={`${height}-${index}`}
@@ -361,7 +361,7 @@ const ProductFeatureCard = ({ featureEntry, fallbackPrice = '', onEdit }) => (
           dir="ltr"
           className="flex h-[36px] basis-[calc(50%_-_6px)] items-center rounded-lg bg-bg-soft px-1 py-1"
         >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+          <span className="flex shrink-0 items-center justify-center rounded-lg pr-1">
             <img src={editIcon} alt="" className="h-5 w-5 icon-strong" />
           </span>
 
@@ -371,7 +371,7 @@ const ProductFeatureCard = ({ featureEntry, fallbackPrice = '', onEdit }) => (
 
           <span
             dir="rtl"
-            className="min-w-0 flex-1 truncate pr-2 text-right text-xs font-normal leading-6 text-text-strong"
+            className="min-w-0 flex-1 truncate pr-1 text-right text-xs font-normal leading-6 text-text-strong"
           >
             {selection.name}
             {formattedPrice ? (
@@ -833,7 +833,7 @@ const AdminProductFormScreen = ({
               <div className="border-border-light pt-1">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex-1 text-right">
-                    <h2 className="text-xl font-bold leading-9 text-text-strong">
+                    <h2 className="font-bold leading-6 text-text-strong">
                       افزودن ویژگی کالا
                     </h2>
                     <p className="mt-1 text-sm font-normal leading-6 text-text-placeholder">
@@ -844,14 +844,14 @@ const AdminProductFormScreen = ({
                   <button
                     type="button"
                     onClick={openCreateFeatureSheet}
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#d1d3d8] px-5 py-2.5 text-base font-normal leading-7 text-text-heading"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#d1d3d8] px-4 py-2 text-base text-sm font-normal leading-7 text-text-heading"
                   >
                     <span>افزودن ویژگی</span>
                   </button>
                 </div>
 
                 {formValues.featureEntries.length > 0 ? (
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mt-4 flex flex-wrap gap-1">
                     {formValues.featureEntries.map((featureEntry, index) => (
                       <ProductFeatureCard
                         key={featureEntry.id}
