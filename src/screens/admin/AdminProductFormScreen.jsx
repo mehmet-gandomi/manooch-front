@@ -1038,7 +1038,7 @@ const AdminProductFormScreen = ({
 
           {activeFeatureAttribute ? (
             <>
-              <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <div className="mt-5 flex flex-wrap gap-2">
                 {featureValueOptions.map((option) => {
                   const isSelected = featureDraft.selections.some(
                     (selection) => selection.key === option.key
