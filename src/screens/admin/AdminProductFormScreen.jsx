@@ -7,9 +7,9 @@ import AdminProductImageUploader from '../../components/admin/AdminProductImageU
 import AdminScreenHeader from '../../components/admin/AdminScreenHeader'
 import addToBoxIcon from '../../assets/images/admin/add-to-box.svg'
 import closeIcon from '../../assets/images/admin/close.svg'
+import editIcon from '../../assets/images/admin/edit.svg'
 import microphoneIcon from '../../assets/images/admin/product/microphone-2.svg'
 import settingIcon from '../../assets/images/admin/product/setting-5.svg'
-import textFileIcon from '../../assets/images/admin/text-file.svg'
 
 const groupedNumberFormatter = new Intl.NumberFormat('fa-IR')
 const plainNumberFormatter = new Intl.NumberFormat('fa-IR', {
@@ -319,80 +319,84 @@ const SummaryBadge = ({ label, colorHex = '' }) => (
   </span>
 )
 
-const ProductUnitCard = ({ unitSale, onEdit, onRemove }) => (
-  <div className="relative rounded-2xl border border-border-light bg-bg-main px-3 py-3">
-    <button type="button" onClick={onEdit} className="block w-full text-right">
-      <div className="pl-7">
-        <div className="flex items-start justify-between gap-3">
-          <span className="text-sm font-semibold leading-6 text-text-strong">
-            {unitSale.name}
-          </span>
-          <span className="text-sm font-semibold leading-6 text-text-strong">
-            {`${formatNumericValue(unitSale.price, true)} ریال`}
-          </span>
-        </div>
-
-        <p className="mt-1 text-xs font-normal leading-5 text-text-placeholder">
-          {`${formatNumericValue(unitSale.quantity)} عدد در واحد • ${formatNumericValue(
-            unitSale.inventory
-          )} موجود`}
-        </p>
-      </div>
+const ProductUnitCard = ({ unitSale, onEdit }) => (
+  <div
+    dir="ltr"
+    className="flex h-[36px] items-center rounded-lg bg-bg-soft pr-3 pl-1 py-3"
+  >
+    <button
+      type="button"
+      onClick={onEdit}
+      aria-label={`ویرایش ${unitSale.name}`}
+      className="flex h-8 w-8 items-center justify-center"
+    >
+      <img src={editIcon} alt="" className="h-5 w-5 icon-strong" />
     </button>
+
+    <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-bg-main px-3 text-base font-norma text-text-heading text-xs mr-2">
+      {formatNumericValue(unitSale.quantity)}
+    </span>
 
     <button
       type="button"
-      onClick={onRemove}
-      aria-label={`حذف ${unitSale.name}`}
-      className="absolute left-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-danger-soft"
+      onClick={onEdit}
+      dir="rtl"
+      className="min-w-0 flex-1 truncate text-right text-base leading-7"
     >
-      <img src={closeIcon} alt="" className="h-3 w-3" />
+      <span className="text-text-strong text-xs">{unitSale.name}</span>
+      <span className="font-normal text-text-placeholder text-xs">
+        {` (${formatNumericValue(unitSale.price, true)} تومان)`}
+      </span>
     </button>
   </div>
 )
 
-const ProductFeatureCard = ({ featureEntry, onEdit, onRemove }) => (
-  <div className="relative rounded-2xl border border-border-light bg-bg-main px-3 py-3">
-    <button type="button" onClick={onEdit} className="block w-full text-right">
-      <div className="pl-7">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <span className="text-sm font-semibold leading-6 text-text-strong">
-              {featureEntry.attributeName}
-            </span>
-            <p className="mt-1 text-xs font-normal leading-5 text-text-placeholder">
-              {featureEntry.hasDifferentPrice
-                ? 'قیمت فروش متفاوت برای هر مورد فعال است'
-                : 'موجودی هر مورد به صورت جداگانه ثبت شده است'}
-            </p>
-          </div>
+const ProductFeatureCard = ({ featureEntry, fallbackPrice = '', onEdit }) => (
+  <>
+    {featureEntry.selections.map((selection) => {
+      const formattedPrice = formatNumericValue(
+        selection.price || fallbackPrice,
+        true
+      )
 
-          <span className="rounded-xl bg-bg-soft px-2 py-1 text-xs font-normal leading-5 text-text-moderate">
-            {`${formatNumericValue(featureEntry.selections.length)} مورد`}
+      return (
+        <button
+          key={selection.key}
+          type="button"
+          onClick={onEdit}
+          dir="ltr"
+          className="flex h-[36px] basis-[calc(50%_-_6px)] items-center rounded-lg bg-bg-soft py-3 px-2"
+        >
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg">
+            <img src={editIcon} alt="" className="h-5 w-5 icon-strong" />
           </span>
-        </div>
 
-        <div className="mt-3 flex flex-wrap justify-end gap-2">
-          {featureEntry.selections.map((selection) => (
-            <SummaryBadge
-              key={selection.key}
-              label={selection.name}
-              colorHex={selection.hex}
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-lg bg-bg-main px-2 text-xs font-normal leading-6 text-text-heading">
+            {formatNumericValue(selection.inventory) || '۰'}
+          </span>
+
+          <span
+            dir="rtl"
+            className="min-w-0 flex-1 truncate text-right text-xs font-normal leading-6 text-text-strong pr-2"
+          >
+            {selection.name}
+            {formattedPrice ? (
+              <span className="text-text-placeholder">
+                {` (${formattedPrice} تومان)`}
+              </span>
+            ) : null}
+          </span>
+
+          {selection.hex ? (
+            <span
+              className="h-5 w-5 shrink-0 rounded-full border border-black/10"
+              style={{ backgroundColor: selection.hex }}
             />
-          ))}
-        </div>
-      </div>
-    </button>
-
-    <button
-      type="button"
-      onClick={onRemove}
-      aria-label={`حذف ${featureEntry.attributeName}`}
-      className="absolute left-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-danger-soft"
-    >
-      <img src={closeIcon} alt="" className="h-3 w-3" />
-    </button>
-  </div>
+          ) : null}
+        </button>
+      )
+    })}
+  </>
 )
 
 const AdminProductFormScreen = ({
@@ -820,9 +824,9 @@ const AdminProductFormScreen = ({
 
             <ToggleRow
               title="ویژگی ها"
-              description="قابلیت نمایش ویژگی های کالا"
+              description="فعاسازی ویژگی های کالا"
               checked={formValues.hasFeatures}
-              className='border-y py-4'
+              className='border-t pt-4'
               onChange={(nextValue) =>
                 setFormValues((current) => ({
                   ...current,
@@ -830,6 +834,48 @@ const AdminProductFormScreen = ({
                 }))
               }
             />
+
+            {formValues.hasFeatures ? (
+              <div className="border-border-light ">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1 text-right">
+                    <h2 className="text-base font-bold leading-8 text-text-strong">
+                      افزودن ویژگی کالا
+                    </h2>
+                    <p className="text-xs font-normal leading-5 text-text-placeholder">
+                     ویژگی های کالا و قیمت گذاری براساس ویژگی
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={openCreateFeatureSheet}
+                    className="inline-flex items-center gap-2 rounded-lg bg-bg-soft px-3 py-2 text-sm font-normal leading-6 text-text-moderate"
+                  >
+                    <span>افزودن ویژگی</span>
+                  </button>
+                </div>
+
+                {formValues.featureEntries.length > 0 ? (
+                  <div className="mt-4 flex flex-wrap gap-1">
+                    {formValues.featureEntries.map((featureEntry, index) => (
+                      <ProductFeatureCard
+                        key={featureEntry.id}
+                        featureEntry={featureEntry}
+                        fallbackPrice={
+                          formValues.priceInquiry
+                            ? ''
+                            : formValues.hasDiscount
+                              ? formValues.discountedPrice || formValues.basePrice
+                              : formValues.basePrice
+                        }
+                        onEdit={() => openEditFeatureSheet(index)}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
 
             <FieldInput
               label="کد کالا"
@@ -874,16 +920,18 @@ const AdminProductFormScreen = ({
               disabled={formValues.priceInquiry}
             />
 
-            <FieldInput
-              label="قیمت با تخفیف"
-              placeholder="۶۹۰,۰۰۰"
-              value={formValues.discountedPrice}
-              onChange={handleFormValueChange('discountedPrice')}
-              numeric
-              grouped
-              suffix="ریال"
-              disabled={formValues.priceInquiry || !formValues.hasDiscount}
-            />
+            {formValues.hasDiscount ? (
+              <FieldInput
+                label="قیمت با تخفیف"
+                placeholder="۶۹۰,۰۰۰"
+                value={formValues.discountedPrice}
+                onChange={handleFormValueChange('discountedPrice')}
+                numeric
+                grouped
+                suffix="ریال"
+                disabled={formValues.priceInquiry}
+              />
+            ) : null}
 
             <ToggleRow
               title="واحد فروش پیشرفته"
@@ -897,73 +945,34 @@ const AdminProductFormScreen = ({
               }
             />
 
-            {formValues.hasFeatures ? (
-              <div className="border-t border-border-light pt-5">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex-1 text-right">
-                    <h2 className="text-base font-bold leading-8 text-text-strong">
-                      ویژگی های کالا
-                    </h2>
-                    <p className="text-xs font-normal leading-5 text-text-placeholder">
-                      رنگ، سایز یا سایر ویژگی های قابل انتخاب را اضافه کنید.
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={openCreateFeatureSheet}
-                    className="inline-flex items-center gap-2 rounded-xl bg-bg-soft px-3 py-2 text-sm font-normal leading-6 text-text-moderate"
-                  >
-                    <img src={settingIcon} alt="" className="h-4 w-4 icon-moderate" />
-                    <span>افزودن ویژگی کالا</span>
-                  </button>
-                </div>
-
-                {formValues.featureEntries.length > 0 ? (
-                  <div className="mt-4 flex flex-col gap-3">
-                    {formValues.featureEntries.map((featureEntry, index) => (
-                      <ProductFeatureCard
-                        key={featureEntry.id}
-                        featureEntry={featureEntry}
-                        onEdit={() => openEditFeatureSheet(index)}
-                        onRemove={() => handleRemoveFeature(index)}
-                      />
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-
             {formValues.hasUnitSale ? (
               <div className="border-t border-border-light pt-5">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex-1 text-right">
                     <h2 className="text-base font-bold leading-8 text-text-strong">
-                      واحد های فروش کالا
+                      افزودن واحد فروش کالا
                     </h2>
                     <p className="text-xs font-normal leading-5 text-text-placeholder">
-                      برای هر واحد قیمت، تعداد و موجودی جدا ثبت کنید.
+                      واحد کالا و قیمت گذاری براساس واحد فروش
                     </p>
                   </div>
 
                   <button
                     type="button"
                     onClick={openCreateUnitSheet}
-                    className="inline-flex items-center gap-2 rounded-xl bg-bg-soft px-3 py-2 text-sm font-normal leading-6 text-text-moderate"
+                    className="inline-flex items-center gap-2 rounded-lg bg-bg-soft px-3 py-2 text-sm font-normal leading-6 text-text-moderate"
                   >
-                    <img src={textFileIcon} alt="" className="h-4 w-4 icon-moderate" />
                     <span>افزودن واحد فروش</span>
                   </button>
                 </div>
 
                 {formValues.unitSales.length > 0 ? (
-                  <div className="mt-4 flex flex-col gap-3">
+                  <div className="mt-4 flex gap-3">
                     {formValues.unitSales.map((unitSale, index) => (
                       <ProductUnitCard
                         key={unitSale.id}
                         unitSale={unitSale}
                         onEdit={() => openEditUnitSheet(index)}
-                        onRemove={() => handleRemoveUnit(index)}
                       />
                     ))}
                   </div>
@@ -1169,7 +1178,7 @@ const AdminProductFormScreen = ({
               }
               numeric
               grouped
-              suffix="ریال"
+              suffix="تومان"
             />
           </div>
 
