@@ -2,10 +2,10 @@ import editIcon from '../../assets/images/admin/edit.svg'
 import mocrophone from '../../assets/images/admin/product/microphone-2.svg'
 import textFileIcon from '../../assets/images/admin/text-file.svg'
 
-const numberFaGrouped = new Intl.NumberFormat('fa-IR');
+const numberFaGrouped = new Intl.NumberFormat('fa-IR')
 const numberFa = new Intl.NumberFormat('fa-IR', {
-  useGrouping: false
-});
+  useGrouping: false,
+})
 
 const AdminProductRow = ({
   product,
@@ -47,18 +47,26 @@ const AdminProductRow = ({
               </p>
               <div className="border-l h-5 mx-1"></div>
               <p className="mt-0.5 text-sm font-normal leading-6 text-text-placeholder">
-                {numberFa.format(product.code)} 
+                {numberFa.format(product.code)}
               </p>
             </div>
             <div className="mt-1 flex flex-row items-center gap-1.5">
-              <span className="text-sm font-semibold leading-6 text-text-strong">
-                {`${numberFaGrouped.format(product.price)} تومان`}
-              </span>
-              {product.discountPrice ? (
-                <span className="text-sm font-semibold leading-6 text-red-500 line-through">
-                  {`${numberFaGrouped .format(product.discountPrice)} تومان`}
+              {product.priceLabel ? (
+                <span className="text-sm font-semibold leading-6 text-text-strong">
+                  {product.priceLabel}
                 </span>
-              ) : null}
+              ) : (
+                <>
+                  <span className="text-sm font-semibold leading-6 text-text-strong">
+                    {`${numberFaGrouped.format(product.price)} تومان`}
+                  </span>
+                  {product.discountPrice ? (
+                    <span className="text-sm font-semibold leading-6 text-red-500 line-through">
+                      {`${numberFaGrouped.format(product.discountPrice)} تومان`}
+                    </span>
+                  ) : null}
+                </>
+              )}
             </div>
           </div>
         </div>

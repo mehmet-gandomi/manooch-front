@@ -16,6 +16,7 @@ import AdminCategoryFormScreen from './AdminCategoryFormScreen'
 import AdminAttributeListScreen from './AdminAttributeListScreen'
 import AdminAttributeFormScreen from './AdminAttributeFormScreen'
 import AdminProductListScreen from './AdminProductListScreen'
+import AdminProductFormScreen from './AdminProductFormScreen'
 
 import bellIcon from '../../assets/images/admin/bell-shake-1.svg'
 import menuIcon from '../../assets/images/admin/menu.svg'
@@ -124,6 +125,10 @@ const initialAttributes = [
     values: [
       { name: 'سبز', hex: '#37FF00' },
       { name: 'مشکی', hex: '#16161D' },
+      { name: 'قرمز', hex: '#FF0000' },
+      { name: 'آبی', hex: '#1F3C88' },
+      { name: 'سفید', hex: '#FFFFFF' },
+      { name: 'ذغال سنگی', hex: '#4B5563' },
     ],
   },
   {
@@ -162,8 +167,70 @@ const initialProducts = [
   {
     id: 'pizza-vagano-1',
     name: 'پیتزا وگنو',
-    code: 43897,
+    description: 'پیتزا مخصوص با سس دست ساز، پنیر موزارلا و سبزیجات تازه',
+    hasVoiceDescription: true,
+    categoryId: 'pizza-italian',
     categoryName: 'پیتزا ایتالیایی',
+    code: '45435768',
+    inventory: '200',
+    priceInquiry: false,
+    basePrice: '700000',
+    hasDiscount: false,
+    discountedPrice: '',
+    hasFeatures: true,
+    featureEntries: [
+      {
+        id: 'pizza-vagano-1-color',
+        attributeId: 'color-clothes',
+        attributeName: 'رنگ لباس',
+        hasDifferentPrice: false,
+        selections: [
+          {
+            key: 'pizza-vagano-1-green',
+            name: 'سبز',
+            hex: '#37FF00',
+            inventory: '12',
+            price: '',
+          },
+          {
+            key: 'pizza-vagano-1-red',
+            name: 'قرمز',
+            hex: '#FF0000',
+            inventory: '24',
+            price: '',
+          },
+          {
+            key: 'pizza-vagano-1-blue',
+            name: 'آبی',
+            hex: '#1F3C88',
+            inventory: '12',
+            price: '',
+          },
+        ],
+      },
+    ],
+    hasUnitSale: true,
+    unitSales: [
+      {
+        id: 'pizza-vagano-1-box',
+        name: 'جین',
+        price: '256000',
+        quantity: '12',
+        inventory: '300',
+      },
+    ],
+    imageGallery: [
+      {
+        id: 'pizza-vagano-1-image-1',
+        src: categoryPreviewImage,
+        alt: 'پیتزا وگنو',
+      },
+      {
+        id: 'pizza-vagano-1-image-2',
+        src: categoryPreviewImage,
+        alt: 'پیتزا وگنو',
+      },
+    ],
     price: 700000,
     discountPrice: null,
     imageSrc: categoryPreviewImage,
@@ -172,8 +239,32 @@ const initialProducts = [
   {
     id: 'pizza-vagano-2',
     name: 'پیتزا وگنو',
-    code: 43897,
+    description: 'پیتزا ایتالیایی همراه با قارچ، ژامبون و پنیر دوبل',
+    hasVoiceDescription: false,
+    categoryId: 'pizza-italian',
     categoryName: 'پیتزا ایتالیایی',
+    code: '45435769',
+    inventory: '180',
+    priceInquiry: false,
+    basePrice: '700000',
+    hasDiscount: true,
+    discountedPrice: '690000',
+    hasFeatures: false,
+    featureEntries: [],
+    hasUnitSale: false,
+    unitSales: [],
+    imageGallery: [
+      {
+        id: 'pizza-vagano-2-image-1',
+        src: categoryPreviewImage,
+        alt: 'پیتزا وگنو',
+      },
+      {
+        id: 'pizza-vagano-2-image-2',
+        src: categoryPreviewImage,
+        alt: 'پیتزا وگنو',
+      },
+    ],
     price: 690000,
     discountPrice: 700000,
     imageSrc: categoryPreviewImage,
@@ -182,8 +273,27 @@ const initialProducts = [
   {
     id: 'pizza-vagano-3',
     name: 'پیتزا وگنو',
-    code: 43897,
+    description: 'پیتزا سبزیجات تازه با خمیر دست ساز',
+    hasVoiceDescription: false,
+    categoryId: 'pizza-italian',
     categoryName: 'پیتزا ایتالیایی',
+    code: '45435770',
+    inventory: '90',
+    priceInquiry: false,
+    basePrice: '700000',
+    hasDiscount: false,
+    discountedPrice: '',
+    hasFeatures: false,
+    featureEntries: [],
+    hasUnitSale: false,
+    unitSales: [],
+    imageGallery: [
+      {
+        id: 'pizza-vagano-3-image-1',
+        src: categoryPreviewImage,
+        alt: 'پیتزا وگنو',
+      },
+    ],
     price: 700000,
     discountPrice: null,
     imageSrc: categoryPreviewImage,
@@ -192,9 +302,28 @@ const initialProducts = [
   {
     id: 'pizza-vagano-4',
     name: 'پیتزا وگنو',
-    code: 43897,
+    description: 'پیتزا مخصوص منوچ با ترکیب پنیر و پپرونی',
+    hasVoiceDescription: true,
+    categoryId: 'pizza-italian',
     categoryName: 'پیتزا ایتالیایی',
-    price: 700000,
+    code: '45435771',
+    inventory: '140',
+    priceInquiry: false,
+    basePrice: '720000',
+    hasDiscount: false,
+    discountedPrice: '',
+    hasFeatures: false,
+    featureEntries: [],
+    hasUnitSale: false,
+    unitSales: [],
+    imageGallery: [
+      {
+        id: 'pizza-vagano-4-image-1',
+        src: categoryPreviewImage,
+        alt: 'پیتزا وگنو',
+      },
+    ],
+    price: 720000,
     discountPrice: null,
     imageSrc: categoryPreviewImage,
     imageAlt: 'پیتزا وگنو',
@@ -229,6 +358,16 @@ const createAttributeId = (value) => {
   }
 
   return `attribute-${Date.now()}`
+}
+
+const createProductId = (value) => {
+  const normalizedValue = value.trim().replace(/\s+/g, '-').toLowerCase()
+
+  if (normalizedValue) {
+    return normalizedValue
+  }
+
+  return `product-${Date.now()}`
 }
 
 const normalizeBusinessTab = (value) => {
@@ -318,6 +457,19 @@ const AdminDashboardScreen = () => {
       return { screen: 'attribute-list' }
     }
 
+    if (matchPath('/admin/products/new', location.pathname)) {
+      return { screen: 'product-form', mode: 'create', productId: null }
+    }
+
+    const productEditMatch = matchPath('/admin/products/:productId', location.pathname)
+    if (productEditMatch) {
+      return {
+        screen: 'product-form',
+        mode: 'edit',
+        productId: productEditMatch.params.productId,
+      }
+    }
+
     if (matchPath('/admin/products', location.pathname)) {
       return { screen: 'product-list' }
     }
@@ -336,6 +488,20 @@ const AdminDashboardScreen = () => {
       attributes.find((item) => item.id === routeState.attributeId) ?? null,
     [attributes, routeState.attributeId]
   )
+
+  const activeProduct = useMemo(
+    () => products.find((item) => item.id === routeState.productId) ?? null,
+    [products, routeState.productId]
+  )
+
+  const nextProductCode = useMemo(() => {
+    const highestCode = products.reduce((maxValue, item) => {
+      const numericCode = Number(item.code) || 0
+      return Math.max(maxValue, numericCode)
+    }, 0)
+
+    return highestCode + 1
+  }, [products])
 
   const handleTabChange = (nextTab) => {
     navigate(mapMenuBarPath(nextTab))
@@ -412,11 +578,31 @@ const AdminDashboardScreen = () => {
     navigate('/admin/products')
   }
 
+  const handleAddProduct = () => {
+    navigate('/admin/products/new')
+  }
+
+  const handleEditProduct = (productId) => {
+    navigate(`/admin/products/${productId}`)
+  }
+
   const handleDeleteProducts = (ids) => {
     setProducts((current) =>
       current.filter((product) => !ids.includes(product.id))
     )
     setProductCount((current) => Math.max(0, current - ids.length))
+  }
+
+  const handleDeleteProduct = (productId) => {
+    if (!productId) {
+      return
+    }
+
+    setProducts((current) =>
+      current.filter((product) => product.id !== productId)
+    )
+    setProductCount((current) => Math.max(0, current - 1))
+    navigate('/admin/products')
   }
 
   const handleSubmitAttribute = (payload) => {
@@ -440,6 +626,56 @@ const AdminDashboardScreen = () => {
     })
 
     navigate('/admin/attributes')
+  }
+
+  const handleSubmitProduct = (payload) => {
+    const fallbackId = routeState.mode === 'create'
+      ? createProductId(payload.name)
+      : payload.id
+    const nextId =
+      routeState.mode === 'create' && products.some((item) => item.id === fallbackId)
+        ? `${fallbackId}-${Date.now()}`
+        : fallbackId
+    const activeCategory = categories.find(
+      (category) => category.id === payload.categoryId
+    )
+    const basePrice = Number(payload.basePrice || 0)
+    const discountedPrice = Number(payload.discountedPrice || 0)
+    const hasDiscount =
+      !payload.priceInquiry &&
+      payload.hasDiscount &&
+      discountedPrice > 0 &&
+      basePrice > 0
+    const nextPrice = payload.priceInquiry
+      ? 0
+      : hasDiscount
+        ? discountedPrice
+        : basePrice
+    const nextProduct = {
+      ...payload,
+      id: nextId,
+      categoryName: activeCategory?.name ?? '',
+      imageSrc: payload.imageGallery?.[0]?.src ?? categoryPreviewImage,
+      imageAlt:
+        payload.imageGallery?.[0]?.alt ?? payload.name ?? 'تصویر کالا',
+      priceLabel: payload.priceInquiry ? 'استعلام قیمت' : '',
+      price: nextPrice,
+      discountPrice: hasDiscount ? basePrice : null,
+    }
+
+    setProducts((current) => {
+      if (routeState.mode === 'create') {
+        return [...current, nextProduct]
+      }
+
+      return current.map((item) => (item.id === payload.id ? nextProduct : item))
+    })
+
+    if (routeState.mode === 'create') {
+      setProductCount((current) => current + 1)
+    }
+
+    navigate('/admin/products')
   }
 
   if (routeState.screen === 'business') {
@@ -484,7 +720,25 @@ const AdminDashboardScreen = () => {
         totalCount={productCount}
         onBack={() => navigate('/admin')}
         onTabChange={handleTabChange}
+        onAddProduct={handleAddProduct}
+        onEditProduct={handleEditProduct}
         onDeleteProducts={handleDeleteProducts}
+      />
+    )
+  }
+
+  if (routeState.screen === 'product-form') {
+    return (
+      <AdminProductFormScreen
+        mode={routeState.mode}
+        product={activeProduct}
+        categories={categories}
+        attributes={attributes}
+        nextCode={nextProductCode}
+        onBack={openProductList}
+        onTabChange={handleTabChange}
+        onSubmit={handleSubmitProduct}
+        onDelete={() => handleDeleteProduct(activeProduct?.id)}
       />
     )
   }
