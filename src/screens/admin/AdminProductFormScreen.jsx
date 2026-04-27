@@ -844,7 +844,7 @@ const AdminProductFormScreen = ({
                   <button
                     type="button"
                     onClick={openCreateFeatureSheet}
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#d1d3d8] px-4 py-2 text-base text-sm font-normal leading-7 text-text-heading"
+                    className="inline-flex items-center gap-2 rounded-lg bg-bg-soft px-3 py-2 text-sm font-normal leading-6 text-text-moderate bg-[#d1d3d8]"
                   >
                     <span>افزودن ویژگی</span>
                   </button>
@@ -954,7 +954,7 @@ const AdminProductFormScreen = ({
                   <button
                     type="button"
                     onClick={openCreateUnitSheet}
-                    className="inline-flex items-center gap-2 rounded-lg bg-bg-soft px-3 py-2 text-sm font-normal leading-6 text-text-moderate"
+                    className="inline-flex items-center gap-2 rounded-lg bg-bg-soft px-3 py-2 text-sm font-normal leading-6 text-text-moderate bg-[#d1d3d8]"
                   >
                     <span>افزودن واحد فروش</span>
                   </button>
