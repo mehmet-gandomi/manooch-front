@@ -6,7 +6,7 @@ import AdminMenuBar from '../../components/admin/AdminMenuBar'
 import AdminProductImageUploader from '../../components/admin/AdminProductImageUploader'
 import AdminScreenHeader from '../../components/admin/AdminScreenHeader'
 import addToBoxIcon from '../../assets/images/admin/add-to-box.svg'
-import closeIcon from '../../assets/images/admin/close.svg'
+import closeIcon from '../../assets/images/admin/product/close-circle.svg'
 import editIcon from '../../assets/images/admin/edit.svg'
 import microphoneIcon from '../../assets/images/admin/product/microphone-2.svg'
 import settingIcon from '../../assets/images/admin/product/setting-5.svg'
@@ -16,7 +16,7 @@ const plainNumberFormatter = new Intl.NumberFormat('fa-IR', {
   useGrouping: false,
 })
 
-const voiceBarHeights = [10, 18, 12, 20, 14, 24, 16, 22, 14, 18, 10, 16, 12, 20]
+const voiceBarHeights = [10, 18, 12, 20, 14, 24, 16, 22, 14, 18, 10, 16, 12, 20, 10, 18, 12, 20, 14, 24, 16, 22, 14, 18, 10, 16, 12, 20, 10, 18, 12, 20, 14, 24, 16, 22, 14, 18, 10, 16, 12, 20, 10, 18, 12, 20, 20, 10, 18, 12, 20, 12, 20]
 
 const toEnglishDigits = (value = '') =>
   value
@@ -262,43 +262,37 @@ const VoiceDescriptionField = ({ hasRecording, onToggle, onClear }) => (
       ضبط توضیحات
     </label>
 
-    <div className="rounded-2xl bg-bg-base px-3 py-3">
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={hasRecording ? onClear : onToggle}
-          aria-label={hasRecording ? 'حذف توضیح صوتی' : 'افزودن توضیح صوتی'}
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-            hasRecording
-              ? 'bg-danger-soft text-red-500'
-              : 'border border-border-light bg-bg-main'
-          }`}
-        >
-          {hasRecording ? (
-            <img src={closeIcon} alt="" className="h-3 w-3" />
-          ) : (
-            <img src={microphoneIcon} alt="" className="h-4 w-4 icon-moderate" />
-          )}
-        </button>
+    <div className="flex items-center gap-3 bg-bg-base rounded-xl p-3">
+      <button
+        type="button"
+        onClick={hasRecording ? onClear : onToggle}
+        aria-label={hasRecording ? 'حذف توضیح صوتی' : 'افزودن توضیح صوتی'}
+        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl`}
+      >
+        {hasRecording ? (
+          <img src={closeIcon} alt="" className="h-7 w-7 font-bold" />
+        ) : (
+          <img src={microphoneIcon} alt="" className="h-7 w-7" />
+        )}
+      </button>
 
-        <button
-          type="button"
-          onClick={onToggle}
-          className="flex-1 rounded-xl bg-bg-main px-3 py-3"
-        >
-          <div className="flex items-center justify-end gap-0.5">
-            {voiceBarHeights.map((height, index) => (
-              <span
-                key={`${height}-${index}`}
-                className={`w-1 rounded-full ${
-                  hasRecording ? 'bg-header-from' : 'bg-border-light'
-                }`}
-                style={{ height }}
-              />
-            ))}
-          </div>
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex-1 rounded-xl"
+      >
+        <div className="flex items-center gap-0.5">
+          {voiceBarHeights.map((height, index) => (
+            <span
+              key={`${height}-${index}`}
+              className={`w-1 rounded-full ${
+                hasRecording ? 'bg-header-from' : 'bg-border-light'
+              }`}
+              style={{ height }}
+            />
+          ))}
+        </div>
+      </button>
     </div>
 
     <p className="w-full text-right text-xs font-normal leading-5 text-text-placeholder">
@@ -365,19 +359,19 @@ const ProductFeatureCard = ({ featureEntry, fallbackPrice = '', onEdit }) => (
           type="button"
           onClick={onEdit}
           dir="ltr"
-          className="flex h-[36px] basis-[calc(50%_-_6px)] items-center rounded-lg bg-bg-soft py-3 px-2"
+          className="flex h-[36px] basis-[calc(50%_-_6px)] items-center rounded-lg bg-bg-soft px-1 py-1"
         >
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
             <img src={editIcon} alt="" className="h-5 w-5 icon-strong" />
           </span>
 
-          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-lg bg-bg-main px-2 text-xs font-normal leading-6 text-text-heading">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-bg-main px-2 text-xs font-normal leading-6 text-text-heading">
             {formatNumericValue(selection.inventory) || '۰'}
           </span>
 
           <span
             dir="rtl"
-            className="min-w-0 flex-1 truncate text-right text-xs font-normal leading-6 text-text-strong pr-2"
+            className="min-w-0 flex-1 truncate pr-2 text-right text-xs font-normal leading-6 text-text-strong"
           >
             {selection.name}
             {formattedPrice ? (
@@ -389,7 +383,7 @@ const ProductFeatureCard = ({ featureEntry, fallbackPrice = '', onEdit }) => (
 
           {selection.hex ? (
             <span
-              className="h-5 w-5 shrink-0 rounded-full border border-black/10"
+              className="h-6 w-6 shrink-0 rounded-full border border-black/10"
               style={{ backgroundColor: selection.hex }}
             />
           ) : null}
@@ -836,13 +830,13 @@ const AdminProductFormScreen = ({
             />
 
             {formValues.hasFeatures ? (
-              <div className="border-border-light ">
+              <div className="border-border-light pt-1">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex-1 text-right">
-                    <h2 className="text-base font-bold leading-8 text-text-strong">
+                    <h2 className="text-xl font-bold leading-9 text-text-strong">
                       افزودن ویژگی کالا
                     </h2>
-                    <p className="text-xs font-normal leading-5 text-text-placeholder">
+                    <p className="mt-1 text-sm font-normal leading-6 text-text-placeholder">
                      ویژگی های کالا و قیمت گذاری براساس ویژگی
                     </p>
                   </div>
@@ -850,14 +844,14 @@ const AdminProductFormScreen = ({
                   <button
                     type="button"
                     onClick={openCreateFeatureSheet}
-                    className="inline-flex items-center gap-2 rounded-lg bg-bg-soft px-3 py-2 text-sm font-normal leading-6 text-text-moderate"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#d1d3d8] px-5 py-2.5 text-base font-normal leading-7 text-text-heading"
                   >
                     <span>افزودن ویژگی</span>
                   </button>
                 </div>
 
                 {formValues.featureEntries.length > 0 ? (
-                  <div className="mt-4 flex flex-wrap gap-1">
+                  <div className="mt-4 flex flex-wrap gap-2">
                     {formValues.featureEntries.map((featureEntry, index) => (
                       <ProductFeatureCard
                         key={featureEntry.id}

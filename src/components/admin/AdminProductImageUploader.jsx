@@ -31,7 +31,7 @@ const AdminProductImageUploader = ({
       </div>
 
       {images.length > 0 ? (
-        <div className="mt-3 flex flex-wrap justify-end gap-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           {images.map((image) => (
             <div key={image.id} className="relative h-16 w-16 shrink-0">
               <img
