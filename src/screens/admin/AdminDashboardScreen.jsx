@@ -19,6 +19,8 @@ import AdminProductListScreen from './AdminProductListScreen'
 import AdminProductFormScreen from './AdminProductFormScreen'
 import AdminBannerListScreen from './AdminBannerListScreen'
 import AdminBannerFormScreen from './AdminBannerFormScreen'
+import AdminGalleryListScreen from './AdminGalleryListScreen'
+import AdminGalleryFormScreen from './AdminGalleryFormScreen'
 import AdminNotificationListScreen from './AdminNotificationListScreen'
 import AdminNotificationFormScreen from './AdminNotificationFormScreen'
 
@@ -31,6 +33,7 @@ import arrowLeftIcon from '../../assets/images/admin/arrow-left.svg'
 import categoryPreviewImage from '../../assets/images/admin/product/pizza.jpg'
 import categoryPreviewIcon from '../../assets/images/category.svg'
 import bannerPreviewImage from '../../assets/images/admin/admin-banner.jpg'
+import galleryPreviewImage from '../../assets/images/admin/gallery-image.jpg'
 
 import linkIcon from '../../assets/images/admin/link.svg'
 import colorsSquareIcon from '../../assets/images/admin/colors-square.svg'
@@ -359,6 +362,30 @@ const initialBanners = [
   },
 ]
 
+const initialGalleries = [
+  {
+    id: 'mocktail-image-1',
+    name: 'تصویر ماکتل',
+    priority: '1',
+    imageSrc: galleryPreviewImage,
+    imageAlt: 'تصویر ماکتل',
+  },
+  {
+    id: 'mocktail-image-2',
+    name: 'تصویر ماکتل',
+    priority: '2',
+    imageSrc: galleryPreviewImage,
+    imageAlt: 'تصویر ماکتل',
+  },
+  {
+    id: 'mocktail-image-3',
+    name: 'تصویر محلی',
+    priority: '3',
+    imageSrc: galleryPreviewImage,
+    imageAlt: 'تصویر محلی',
+  },
+]
+
 const initialNotifications = [
   {
     id: 'big-sale',
@@ -448,6 +475,16 @@ const createBannerId = (value) => {
   return `banner-${Date.now()}`
 }
 
+const createGalleryId = (value) => {
+  const normalizedValue = value.trim().replace(/\s+/g, '-').toLowerCase()
+
+  if (normalizedValue) {
+    return normalizedValue
+  }
+
+  return `gallery-${Date.now()}`
+}
+
 const createNotificationId = (value) => {
   const normalizedValue = value.trim().replace(/\s+/g, '-').toLowerCase()
 
@@ -493,6 +530,7 @@ const AdminDashboardScreen = () => {
   const [attributes, setAttributes] = useState(initialAttributes)
   const [products, setProducts] = useState(initialProducts)
   const [banners, setBanners] = useState(initialBanners)
+  const [galleries, setGalleries] = useState(initialGalleries)
   const [notifications, setNotifications] = useState(initialNotifications)
   const [productCount, setProductCount] = useState(230)
 
@@ -581,6 +619,23 @@ const AdminDashboardScreen = () => {
       return { screen: 'banner-list' }
     }
 
+    if (matchPath('/admin/gallery/new', location.pathname)) {
+      return { screen: 'gallery-form', mode: 'create', galleryId: null }
+    }
+
+    const galleryEditMatch = matchPath('/admin/gallery/:galleryId', location.pathname)
+    if (galleryEditMatch) {
+      return {
+        screen: 'gallery-form',
+        mode: 'edit',
+        galleryId: galleryEditMatch.params.galleryId,
+      }
+    }
+
+    if (matchPath('/admin/gallery', location.pathname)) {
+      return { screen: 'gallery-list' }
+    }
+
     if (matchPath('/admin/notifications/new', location.pathname)) {
       return { screen: 'notification-form', mode: 'create', notificationId: null }
     }
@@ -621,6 +676,11 @@ const AdminDashboardScreen = () => {
   const activeBanner = useMemo(
     () => banners.find((item) => item.id === routeState.bannerId) ?? null,
     [banners, routeState.bannerId]
+  )
+
+  const activeGallery = useMemo(
+    () => galleries.find((item) => item.id === routeState.galleryId) ?? null,
+    [galleries, routeState.galleryId]
   )
 
   const activeNotification = useMemo(
@@ -717,6 +777,10 @@ const AdminDashboardScreen = () => {
     navigate('/admin/banners')
   }
 
+  const openGalleryList = () => {
+    navigate('/admin/gallery')
+  }
+
   const openNotificationList = () => {
     navigate('/admin/notifications')
   }
@@ -786,6 +850,49 @@ const AdminDashboardScreen = () => {
     })
 
     navigate('/admin/banners')
+  }
+
+  const handleAddGallery = () => {
+    navigate('/admin/gallery/new')
+  }
+
+  const handleEditGallery = (galleryId) => {
+    navigate(`/admin/gallery/${galleryId}`)
+  }
+
+  const handleDeleteGalleries = (ids) => {
+    setGalleries((current) =>
+      current.filter((gallery) => !ids.includes(gallery.id))
+    )
+  }
+
+  const handleSubmitGallery = (payload) => {
+    const fallbackId = routeState.mode === 'create'
+      ? createGalleryId(payload.name)
+      : payload.id
+    const nextId =
+      routeState.mode === 'create' &&
+      galleries.some((item) => item.id === fallbackId)
+        ? `${fallbackId}-${Date.now()}`
+        : fallbackId
+    const nextGallery = {
+      ...payload,
+      id: nextId,
+      imageSrc: payload.imageSrc || galleryPreviewImage,
+      imageAlt: payload.imageAlt || payload.name || 'تصویر گالری',
+    }
+
+    setGalleries((current) => {
+      if (routeState.mode === 'create') {
+        return [...current, nextGallery]
+      }
+
+      return current.map((item) =>
+        item.id === payload.id ? nextGallery : item
+      )
+    })
+
+    navigate('/admin/gallery')
   }
 
   const handleAddNotification = () => {
@@ -994,6 +1101,32 @@ const AdminDashboardScreen = () => {
     )
   }
 
+  if (routeState.screen === 'gallery-list') {
+    return (
+      <AdminGalleryListScreen
+        galleries={galleries}
+        onBack={() => navigate('/admin')}
+        onTabChange={handleTabChange}
+        onAddGallery={handleAddGallery}
+        onEditGallery={handleEditGallery}
+        onDeleteGalleries={handleDeleteGalleries}
+      />
+    )
+  }
+
+  if (routeState.screen === 'gallery-form') {
+    return (
+      <AdminGalleryFormScreen
+        mode={routeState.mode}
+        gallery={activeGallery}
+        nextPriority={galleries.length + 1}
+        onBack={openGalleryList}
+        onTabChange={handleTabChange}
+        onSubmit={handleSubmitGallery}
+      />
+    )
+  }
+
   if (routeState.screen === 'notification-list') {
     return (
       <AdminNotificationListScreen
@@ -1131,6 +1264,11 @@ const AdminDashboardScreen = () => {
 
                   if (item.key === 'banner') {
                     openBannerList()
+                    return
+                  }
+
+                  if (item.key === 'gallery') {
+                    openGalleryList()
                     return
                   }
 
