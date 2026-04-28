@@ -17,6 +17,8 @@ import AdminAttributeListScreen from './AdminAttributeListScreen'
 import AdminAttributeFormScreen from './AdminAttributeFormScreen'
 import AdminProductListScreen from './AdminProductListScreen'
 import AdminProductFormScreen from './AdminProductFormScreen'
+import AdminBannerListScreen from './AdminBannerListScreen'
+import AdminBannerFormScreen from './AdminBannerFormScreen'
 
 import bellIcon from '../../assets/images/admin/bell-shake-1.svg'
 import menuIcon from '../../assets/images/admin/menu.svg'
@@ -26,6 +28,7 @@ import usersIcon from '../../assets/images/admin/users.svg'
 import arrowLeftIcon from '../../assets/images/admin/arrow-left.svg'
 import categoryPreviewImage from '../../assets/images/admin/product/pizza.jpg'
 import categoryPreviewIcon from '../../assets/images/category.svg'
+import bannerPreviewImage from '../../assets/images/admin/admin-banner.jpg'
 
 import linkIcon from '../../assets/images/admin/link.svg'
 import colorsSquareIcon from '../../assets/images/admin/colors-square.svg'
@@ -330,6 +333,30 @@ const initialProducts = [
   },
 ]
 
+const initialBanners = [
+  {
+    id: 'pizza-campaign-1',
+    name: 'بنر تبلیغاتی پیتزا',
+    priority: '1',
+    imageSrc: bannerPreviewImage,
+    imageAlt: 'بنر تبلیغاتی پیتزا',
+  },
+  {
+    id: 'pizza-campaign-2',
+    name: 'بنر تبلیغاتی پیتزا',
+    priority: '2',
+    imageSrc: bannerPreviewImage,
+    imageAlt: 'بنر تبلیغاتی پیتزا',
+  },
+  {
+    id: 'pizza-campaign-3',
+    name: 'بنر تبلیغاتی پیتزا',
+    priority: '3',
+    imageSrc: bannerPreviewImage,
+    imageAlt: 'بنر تبلیغاتی پیتزا',
+  },
+]
+
 const adminReports = [
   { icon: messageFavoriteIcon, label: 'نظرات دریافت شده', value: '۱۴۳' },
   {
@@ -370,6 +397,16 @@ const createProductId = (value) => {
   return `product-${Date.now()}`
 }
 
+const createBannerId = (value) => {
+  const normalizedValue = value.trim().replace(/\s+/g, '-').toLowerCase()
+
+  if (normalizedValue) {
+    return normalizedValue
+  }
+
+  return `banner-${Date.now()}`
+}
+
 const normalizeBusinessTab = (value) => {
   switch (value) {
     case 'contact':
@@ -404,6 +441,7 @@ const AdminDashboardScreen = () => {
   const [categories, setCategories] = useState(initialCategories)
   const [attributes, setAttributes] = useState(initialAttributes)
   const [products, setProducts] = useState(initialProducts)
+  const [banners, setBanners] = useState(initialBanners)
   const [productCount, setProductCount] = useState(230)
 
   const routeState = useMemo(() => {
@@ -474,6 +512,23 @@ const AdminDashboardScreen = () => {
       return { screen: 'product-list' }
     }
 
+    if (matchPath('/admin/banners/new', location.pathname)) {
+      return { screen: 'banner-form', mode: 'create', bannerId: null }
+    }
+
+    const bannerEditMatch = matchPath('/admin/banners/:bannerId', location.pathname)
+    if (bannerEditMatch) {
+      return {
+        screen: 'banner-form',
+        mode: 'edit',
+        bannerId: bannerEditMatch.params.bannerId,
+      }
+    }
+
+    if (matchPath('/admin/banners', location.pathname)) {
+      return { screen: 'banner-list' }
+    }
+
     return { screen: 'dashboard' }
   }, [location.pathname])
 
@@ -492,6 +547,11 @@ const AdminDashboardScreen = () => {
   const activeProduct = useMemo(
     () => products.find((item) => item.id === routeState.productId) ?? null,
     [products, routeState.productId]
+  )
+
+  const activeBanner = useMemo(
+    () => banners.find((item) => item.id === routeState.bannerId) ?? null,
+    [banners, routeState.bannerId]
   )
 
   const nextProductCode = useMemo(() => {
@@ -578,6 +638,10 @@ const AdminDashboardScreen = () => {
     navigate('/admin/products')
   }
 
+  const openBannerList = () => {
+    navigate('/admin/banners')
+  }
+
   const handleAddProduct = () => {
     navigate('/admin/products/new')
   }
@@ -603,6 +667,46 @@ const AdminDashboardScreen = () => {
     )
     setProductCount((current) => Math.max(0, current - 1))
     navigate('/admin/products')
+  }
+
+  const handleAddBanner = () => {
+    navigate('/admin/banners/new')
+  }
+
+  const handleEditBanner = (bannerId) => {
+    navigate(`/admin/banners/${bannerId}`)
+  }
+
+  const handleDeleteBanners = (ids) => {
+    setBanners((current) =>
+      current.filter((banner) => !ids.includes(banner.id))
+    )
+  }
+
+  const handleSubmitBanner = (payload) => {
+    const fallbackId = routeState.mode === 'create'
+      ? createBannerId(payload.name)
+      : payload.id
+    const nextId =
+      routeState.mode === 'create' && banners.some((item) => item.id === fallbackId)
+        ? `${fallbackId}-${Date.now()}`
+        : fallbackId
+    const nextBanner = {
+      ...payload,
+      id: nextId,
+      imageSrc: payload.imageSrc || bannerPreviewImage,
+      imageAlt: payload.imageAlt || payload.name || 'تصویر بنر',
+    }
+
+    setBanners((current) => {
+      if (routeState.mode === 'create') {
+        return [...current, nextBanner]
+      }
+
+      return current.map((item) => (item.id === payload.id ? nextBanner : item))
+    })
+
+    navigate('/admin/banners')
   }
 
   const handleSubmitAttribute = (payload) => {
@@ -743,6 +847,32 @@ const AdminDashboardScreen = () => {
     )
   }
 
+  if (routeState.screen === 'banner-list') {
+    return (
+      <AdminBannerListScreen
+        banners={banners}
+        onBack={() => navigate('/admin')}
+        onTabChange={handleTabChange}
+        onAddBanner={handleAddBanner}
+        onEditBanner={handleEditBanner}
+        onDeleteBanners={handleDeleteBanners}
+      />
+    )
+  }
+
+  if (routeState.screen === 'banner-form') {
+    return (
+      <AdminBannerFormScreen
+        mode={routeState.mode}
+        banner={activeBanner}
+        nextPriority={banners.length + 1}
+        onBack={openBannerList}
+        onTabChange={handleTabChange}
+        onSubmit={handleSubmitBanner}
+      />
+    )
+  }
+
   if (routeState.screen === 'attribute-form') {
     return (
       <AdminAttributeFormScreen
@@ -851,6 +981,11 @@ const AdminDashboardScreen = () => {
 
                   if (item.key === 'product') {
                     openProductList()
+                    return
+                  }
+
+                  if (item.key === 'banner') {
+                    openBannerList()
                     return
                   }
 
