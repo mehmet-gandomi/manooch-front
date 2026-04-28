@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import closeIcon from '../../assets/images/admin/close.svg'
-import imageIcon from '../../assets/images/admin/image.svg'
+import imageIcon from '../../assets/images/admin/product/document-upload.svg'
 
 const AdminProductImageUploader = ({
   images = [],
@@ -59,7 +59,7 @@ const AdminProductImageUploader = ({
           onClick={() => inputRef.current?.click()}
           className="mt-3 flex w-full flex-col items-center justify-center rounded-2xl border border-dashed border-border-light bg-bg-main px-4 py-5 text-center"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-bg-soft">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg border">
             <img src={imageIcon} alt="" className="h-5 w-5 icon-moderate" />
           </span>
           <span className="mt-3 text-sm font-normal leading-6 text-text-moderate">
