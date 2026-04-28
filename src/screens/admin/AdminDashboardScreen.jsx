@@ -19,6 +19,8 @@ import AdminProductListScreen from './AdminProductListScreen'
 import AdminProductFormScreen from './AdminProductFormScreen'
 import AdminBannerListScreen from './AdminBannerListScreen'
 import AdminBannerFormScreen from './AdminBannerFormScreen'
+import AdminNotificationListScreen from './AdminNotificationListScreen'
+import AdminNotificationFormScreen from './AdminNotificationFormScreen'
 
 import bellIcon from '../../assets/images/admin/bell-shake-1.svg'
 import menuIcon from '../../assets/images/admin/menu.svg'
@@ -357,6 +359,45 @@ const initialBanners = [
   },
 ]
 
+const initialNotifications = [
+  {
+    id: 'big-sale',
+    title: 'بزرگ ترین حراج ایران!!',
+    description: 'چون ما بهترین فروشگاه فروش کالا در ایران هستیم که مفتخریم به شما خدمات ارائه دهیم.',
+    activeDays: '3',
+    hasLink: true,
+    link: 'https://ieffect.ir/about',
+    status: 'active',
+  },
+  {
+    id: 'discount-30',
+    title: 'خرید با ۳۰ درصد تخفیف',
+    description: 'چون ما بهترین فروشگاه فروش کالا در ایران هستیم که مفتخریم به شما خدمات ارائه دهیم.',
+    activeDays: '3',
+    hasLink: true,
+    link: 'https://ieffect.ir/about',
+    status: 'active',
+  },
+  {
+    id: 'today-special',
+    title: 'تخفیف های ویژه امروز!',
+    description: 'چون ما بهترین فروشگاه فروش کالا در ایران هستیم که مفتخریم به شما خدمات ارائه دهیم.',
+    activeDays: '0',
+    hasLink: false,
+    link: '',
+    status: 'inactive',
+  },
+  {
+    id: 'yalda-special',
+    title: 'تخفیف های یلدایی!',
+    description: 'چون ما بهترین فروشگاه فروش کالا در ایران هستیم که مفتخریم به شما خدمات ارائه دهیم.',
+    activeDays: '0',
+    hasLink: false,
+    link: '',
+    status: 'inactive',
+  },
+]
+
 const adminReports = [
   { icon: messageFavoriteIcon, label: 'نظرات دریافت شده', value: '۱۴۳' },
   {
@@ -407,6 +448,16 @@ const createBannerId = (value) => {
   return `banner-${Date.now()}`
 }
 
+const createNotificationId = (value) => {
+  const normalizedValue = value.trim().replace(/\s+/g, '-').toLowerCase()
+
+  if (normalizedValue) {
+    return normalizedValue
+  }
+
+  return `notification-${Date.now()}`
+}
+
 const normalizeBusinessTab = (value) => {
   switch (value) {
     case 'contact':
@@ -442,6 +493,7 @@ const AdminDashboardScreen = () => {
   const [attributes, setAttributes] = useState(initialAttributes)
   const [products, setProducts] = useState(initialProducts)
   const [banners, setBanners] = useState(initialBanners)
+  const [notifications, setNotifications] = useState(initialNotifications)
   const [productCount, setProductCount] = useState(230)
 
   const routeState = useMemo(() => {
@@ -529,6 +581,23 @@ const AdminDashboardScreen = () => {
       return { screen: 'banner-list' }
     }
 
+    if (matchPath('/admin/notifications/new', location.pathname)) {
+      return { screen: 'notification-form', mode: 'create', notificationId: null }
+    }
+
+    const notificationEditMatch = matchPath('/admin/notifications/:notificationId', location.pathname)
+    if (notificationEditMatch) {
+      return {
+        screen: 'notification-form',
+        mode: 'edit',
+        notificationId: notificationEditMatch.params.notificationId,
+      }
+    }
+
+    if (matchPath('/admin/notifications', location.pathname)) {
+      return { screen: 'notification-list' }
+    }
+
     return { screen: 'dashboard' }
   }, [location.pathname])
 
@@ -552,6 +621,12 @@ const AdminDashboardScreen = () => {
   const activeBanner = useMemo(
     () => banners.find((item) => item.id === routeState.bannerId) ?? null,
     [banners, routeState.bannerId]
+  )
+
+  const activeNotification = useMemo(
+    () =>
+      notifications.find((item) => item.id === routeState.notificationId) ?? null,
+    [notifications, routeState.notificationId]
   )
 
   const nextProductCode = useMemo(() => {
@@ -642,6 +717,10 @@ const AdminDashboardScreen = () => {
     navigate('/admin/banners')
   }
 
+  const openNotificationList = () => {
+    navigate('/admin/notifications')
+  }
+
   const handleAddProduct = () => {
     navigate('/admin/products/new')
   }
@@ -707,6 +786,48 @@ const AdminDashboardScreen = () => {
     })
 
     navigate('/admin/banners')
+  }
+
+  const handleAddNotification = () => {
+    navigate('/admin/notifications/new')
+  }
+
+  const handleEditNotification = (notificationId) => {
+    navigate(`/admin/notifications/${notificationId}`)
+  }
+
+  const handleDeleteNotifications = (ids) => {
+    setNotifications((current) =>
+      current.filter((notification) => !ids.includes(notification.id))
+    )
+  }
+
+  const handleSubmitNotification = (payload) => {
+    const fallbackId = routeState.mode === 'create'
+      ? createNotificationId(payload.title)
+      : payload.id
+    const nextId =
+      routeState.mode === 'create' &&
+      notifications.some((item) => item.id === fallbackId)
+        ? `${fallbackId}-${Date.now()}`
+        : fallbackId
+    const nextNotification = {
+      ...payload,
+      id: nextId,
+      status: Number(payload.activeDays) > 0 ? 'active' : 'inactive',
+    }
+
+    setNotifications((current) => {
+      if (routeState.mode === 'create') {
+        return [...current, nextNotification]
+      }
+
+      return current.map((item) =>
+        item.id === payload.id ? nextNotification : item
+      )
+    })
+
+    navigate('/admin/notifications')
   }
 
   const handleSubmitAttribute = (payload) => {
@@ -873,6 +994,30 @@ const AdminDashboardScreen = () => {
     )
   }
 
+  if (routeState.screen === 'notification-list') {
+    return (
+      <AdminNotificationListScreen
+        notifications={notifications}
+        onBack={() => navigate('/admin')}
+        onTabChange={handleTabChange}
+        onAddNotification={handleAddNotification}
+        onEditNotification={handleEditNotification}
+        onDeleteNotifications={handleDeleteNotifications}
+      />
+    )
+  }
+
+  if (routeState.screen === 'notification-form') {
+    return (
+      <AdminNotificationFormScreen
+        notification={activeNotification}
+        onBack={openNotificationList}
+        onTabChange={handleTabChange}
+        onSubmit={handleSubmitNotification}
+      />
+    )
+  }
+
   if (routeState.screen === 'attribute-form') {
     return (
       <AdminAttributeFormScreen
@@ -986,6 +1131,11 @@ const AdminDashboardScreen = () => {
 
                   if (item.key === 'banner') {
                     openBannerList()
+                    return
+                  }
+
+                  if (item.key === 'news') {
+                    openNotificationList()
                     return
                   }
 
