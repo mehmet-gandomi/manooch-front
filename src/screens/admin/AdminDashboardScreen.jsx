@@ -1101,7 +1101,7 @@ const AdminDashboardScreen = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 pt-4 pb-2">
-          <div className="mb-4 flex flex-wrap gap-2 gap-y-3">
+          <div className="mb-4 grid grid-cols-5 gap-4">
             {menuItems.map((item) => (
               <AdminMenuItem
                 key={item.key}

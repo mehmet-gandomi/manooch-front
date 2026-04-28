@@ -29,17 +29,17 @@ const AdminBannerImageUploader = ({
 
       {previewSrc ? (
         <div className="flex justify-start">
-          <div className="relative h-[68px] w-[68px] overflow-visible">
+          <div className="relative h-[80px] w-[80px] shrink-0">
             <img
               src={previewSrc}
               alt={previewAlt}
-              className="h-full w-full rounded-2xl object-cover"
+              className="h-full w-full rounded-2xl object-cover border border-dashed border-border-light bg-bg-main p-1"
             />
             <button
               type="button"
               onClick={onRemove}
               aria-label="حذف تصویر بنر"
-              className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-danger-soft"
+              className="absolute -left-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-danger-soft"
             >
               <img src={closeIcon} alt="" className="h-3 w-3" />
             </button>

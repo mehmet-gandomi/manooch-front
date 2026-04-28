@@ -108,7 +108,7 @@ const MenuItem = ({
     >
       <img src={icon} alt="" className="h-6 w-6 shrink-0" />
 
-      <div className="flex min-w-0 flex-1 flex-row-reverse items-center justify-between gap-4">
+      <div className="flex min-w-0 flex-row-reverse items-center gap-4">
         {supportingText ? (
           <span className="shrink-0 text-sm font-normal leading-6 text-text-placeholder">
             {supportingText}
@@ -186,7 +186,7 @@ const BurgerMenuDrawer = ({ isOpen, onClose }) => {
               <p className="whitespace-pre-line text-right text-sm font-normal leading-6 text-menu-warning">
                 دنبال یک موبایل فروشی معتبری که قسطی خرید کنی؟
                 {'\n'}
-                موبایل کاج اینجاست.
+                <span className='font-semibold'>موبایل کاج</span> اینجاست.
               </p>
             </div>
           </div>
@@ -263,9 +263,10 @@ const BurgerMenuDrawer = ({ isOpen, onClose }) => {
             <Divider />
 
             <div className="flex flex-col items-center gap-4 py-4">
-              <p className="text-center text-base font-normal leading-8 text-menu-accent">
-                قدرت گرفته از استودیو دیجیتال اثر
-              </p>
+              <div className="text-center text-base font-normal leading-8 text-menu-accent flex gap-1">
+                <p>قدرت گرفته از</p>
+                <a href="#" className='font-semibold underline'>استودیو دیجیتال اثر</a>
+              </div>
 
               <div dir="ltr" className="flex items-center gap-3">
                 {socialLinks.map((link) => (
