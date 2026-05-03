@@ -11,6 +11,7 @@ import AdminReportRow from '../../components/admin/AdminReportRow'
 import BurgerMenuDrawer from '../../components/burger-menu/BurgerMenuDrawer'
 import AdminBusinessInfoScreen from './AdminBusinessInfoScreen'
 import AdminPluginsScreen from './AdminPluginsScreen'
+import AdminEditScreen from './AdminEditScreen'
 import AdminCategoryListScreen from './AdminCategoryListScreen'
 import AdminCategoryFormScreen from './AdminCategoryFormScreen'
 import AdminAttributeListScreen from './AdminAttributeListScreen'
@@ -506,6 +507,17 @@ const normalizeBusinessTab = (value) => {
   }
 }
 
+const normalizeEditTab = (value) => {
+  switch (value) {
+    case 'display':
+    case 'shop':
+      return value
+    case 'settings':
+    default:
+      return 'settings'
+  }
+}
+
 const mapMenuBarPath = (key) => {
   switch (key) {
     case 'dashboard':
@@ -515,6 +527,7 @@ const mapMenuBarPath = (key) => {
     case 'plugin':
       return '/admin/plugin'
     case 'edit':
+      return '/admin/edit'
     case 'list':
       return '/admin/categories'
     default:
@@ -549,6 +562,18 @@ const AdminDashboardScreen = () => {
 
     if (matchPath('/admin/plugin', location.pathname)) {
       return { screen: 'plugin' }
+    }
+
+    const editTabMatch = matchPath('/admin/edit/:editTab', location.pathname)
+    if (editTabMatch) {
+      return {
+        screen: 'edit',
+        editTab: normalizeEditTab(editTabMatch.params.editTab),
+      }
+    }
+
+    if (matchPath('/admin/edit', location.pathname)) {
+      return { screen: 'edit', editTab: 'settings' }
     }
 
     if (matchPath('/admin/categories/new', location.pathname)) {
@@ -707,6 +732,14 @@ const AdminDashboardScreen = () => {
       nextTab === 'details'
         ? '/admin/business'
         : `/admin/business/${normalizeBusinessTab(nextTab)}`
+    )
+  }
+
+  const handleEditTabChange = (nextTab) => {
+    navigate(
+      nextTab === 'settings'
+        ? '/admin/edit'
+        : `/admin/edit/${normalizeEditTab(nextTab)}`
     )
   }
 
@@ -1026,6 +1059,17 @@ const AdminDashboardScreen = () => {
     return (
       <AdminPluginsScreen
         activeTab="plugin"
+        onTabChange={handleTabChange}
+        onBack={() => navigate('/admin')}
+      />
+    )
+  }
+
+  if (routeState.screen === 'edit') {
+    return (
+      <AdminEditScreen
+        activeTab={routeState.editTab}
+        onEditTabChange={handleEditTabChange}
         onTabChange={handleTabChange}
         onBack={() => navigate('/admin')}
       />

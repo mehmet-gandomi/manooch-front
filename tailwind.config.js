@@ -16,6 +16,7 @@ export default {
       colors: {
         primary: '#0068ff',
         'menu-accent': '#4b45e6',
+        'brand-green': '#00e043',
         'menu-warning': '#ff7b06',
         success: '#22c55e',
         'success-soft': '#e9f9ee',
