@@ -17,6 +17,11 @@
   .icon-success {
     filter: brightness(0) saturate(100%) invert(54%) sepia(29%) saturate(1255%) hue-rotate(100deg) brightness(92%) contrast(88%);
   }
+
+  /* Tints hardcoded SVG icons to the active admin navigation accent. */
+  .icon-accent {
+    filter: brightness(0) saturate(100%) invert(30%) sepia(81%) saturate(1986%) hue-rotate(232deg) brightness(91%) contrast(99%);
+  }
 }
 
 @font-face {

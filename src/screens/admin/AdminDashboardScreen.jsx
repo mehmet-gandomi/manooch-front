@@ -18,6 +18,8 @@ import AdminAttributeListScreen from './AdminAttributeListScreen'
 import AdminAttributeFormScreen from './AdminAttributeFormScreen'
 import AdminProductListScreen from './AdminProductListScreen'
 import AdminProductFormScreen from './AdminProductFormScreen'
+import AdminOrderListScreen from './AdminOrderListScreen'
+import AdminOrderDetailScreen from './AdminOrderDetailScreen'
 import AdminBannerListScreen from './AdminBannerListScreen'
 import AdminBannerFormScreen from './AdminBannerFormScreen'
 import AdminGalleryListScreen from './AdminGalleryListScreen'
@@ -339,6 +341,69 @@ const initialProducts = [
   },
 ]
 
+
+const initialOrders = [
+  {
+    id: 'order-3414567',
+    code: '3414567',
+    isNew: true,
+    deliveryStatus: 'sent',
+    paymentStatus: 'waiting',
+    paymentLabel: 'در انتظار پرداخت',
+    customerName: 'سعیده فلاحی',
+    customerPhone: '۰۵۱ ۵۰۴۵ ۶۵۸۸',
+    address: 'خراسان رضوی، مشهد',
+    itemsCount: 3,
+    totalPrice: 1750000,
+    date: '۱۴۰۴/۰۵/۲۳',
+    time: '۱۲:۳۳',
+    items: [
+      { id: 'item-pepperoni', name: 'پیتزا پپرونی', code: '234537', quantity: 1, price: 750000 },
+      { id: 'item-beef', name: 'پیتزا رست بیف', code: '3414562', quantity: 1, price: 850000 },
+      { id: 'item-special', name: 'سیب زمینی ویژه', code: '434534', quantity: 1, price: 150000, originalPrice: 200000 },
+    ],
+  },
+  {
+    id: 'order-3312564',
+    code: '3312564',
+    isNew: false,
+    deliveryStatus: 'preparing',
+    paymentStatus: 'paid',
+    paymentLabel: 'پرداخت شده',
+    customerName: 'سعید فیروزی',
+    customerPhone: '۰۵۱ ۵۰۴۵ ۶۵۸۸',
+    address: 'خراسان رضوی، مشهد',
+    itemsCount: 2,
+    totalPrice: 1250000,
+    date: '۱۴۰۴/۰۵/۲۳',
+    time: '۱۲:۳۳',
+    items: [
+      { id: 'item-margarita', name: 'پیتزا مارگاریتا', code: '231456', quantity: 1, price: 650000 },
+      { id: 'item-fries', name: 'سیب زمینی', code: '231457', quantity: 1, price: 600000 },
+    ],
+  },
+  {
+    id: 'order-3414568',
+    code: '3414568',
+    isNew: false,
+    deliveryStatus: 'post',
+    paymentStatus: 'customer',
+    paymentLabel: 'ارسال برای مشتری',
+    customerName: 'محمد حجازی',
+    customerPhone: '۰۵۱ ۵۰۴۵ ۶۵۸۸',
+    address: 'خراسان رضوی، مشهد',
+    itemsCount: 4,
+    totalPrice: 2365000,
+    date: '۱۴۰۴/۰۵/۲۳',
+    time: '۱۲:۳۳',
+    items: [
+      { id: 'item-vegano', name: 'پیتزا وگنو', code: '454357', quantity: 2, price: 1400000 },
+      { id: 'item-burger', name: 'برگر ویژه', code: '454358', quantity: 1, price: 715000 },
+      { id: 'item-drink', name: 'نوشیدنی', code: '454359', quantity: 1, price: 250000 },
+    ],
+  },
+]
+
 const initialBanners = [
   {
     id: 'pizza-campaign-1',
@@ -529,7 +594,7 @@ const mapMenuBarPath = (key) => {
     case 'edit':
       return '/admin/edit'
     case 'list':
-      return '/admin/categories'
+      return '/admin/orders'
     default:
       return '/admin'
   }
@@ -542,10 +607,12 @@ const AdminDashboardScreen = () => {
   const [categories, setCategories] = useState(initialCategories)
   const [attributes, setAttributes] = useState(initialAttributes)
   const [products, setProducts] = useState(initialProducts)
+  const [orders, setOrders] = useState(initialOrders)
   const [banners, setBanners] = useState(initialBanners)
   const [galleries, setGalleries] = useState(initialGalleries)
   const [notifications, setNotifications] = useState(initialNotifications)
   const [productCount, setProductCount] = useState(230)
+  const [orderCount, setOrderCount] = useState(230)
 
   const routeState = useMemo(() => {
     const businessTabMatch = matchPath('/admin/business/:businessTab', location.pathname)
@@ -608,6 +675,18 @@ const AdminDashboardScreen = () => {
 
     if (matchPath('/admin/attributes', location.pathname)) {
       return { screen: 'attribute-list' }
+    }
+
+    const orderDetailMatch = matchPath('/admin/orders/:orderId', location.pathname)
+    if (orderDetailMatch) {
+      return {
+        screen: 'order-detail',
+        orderId: orderDetailMatch.params.orderId,
+      }
+    }
+
+    if (matchPath('/admin/orders', location.pathname)) {
+      return { screen: 'order-list' }
     }
 
     if (matchPath('/admin/products/new', location.pathname)) {
@@ -696,6 +775,11 @@ const AdminDashboardScreen = () => {
   const activeProduct = useMemo(
     () => products.find((item) => item.id === routeState.productId) ?? null,
     [products, routeState.productId]
+  )
+
+  const activeOrder = useMemo(
+    () => orders.find((item) => item.id === routeState.orderId) ?? null,
+    [orders, routeState.orderId]
   )
 
   const activeBanner = useMemo(
@@ -800,6 +884,40 @@ const AdminDashboardScreen = () => {
     setAttributes((current) =>
       current.filter((attribute) => !ids.includes(attribute.id))
     )
+  }
+
+  const openOrderList = () => {
+    navigate('/admin/orders')
+  }
+
+  const handleOpenOrder = (orderId) => {
+    navigate(`/admin/orders/${orderId}`)
+  }
+
+  const handleUpdateOrdersStatus = (ids, deliveryStatus) => {
+    setOrders((current) =>
+      current.map((order) =>
+        ids.includes(order.id) ? { ...order, deliveryStatus } : order
+      )
+    )
+  }
+
+  const handleUpdateOrderStatus = (orderId, deliveryStatus) => {
+    if (!orderId) {
+      return
+    }
+
+    handleUpdateOrdersStatus([orderId], deliveryStatus)
+  }
+
+  const handleCancelOrder = (orderId) => {
+    if (!orderId) {
+      return
+    }
+
+    setOrders((current) => current.filter((order) => order.id !== orderId))
+    setOrderCount((current) => Math.max(0, current - 1))
+    navigate('/admin/orders')
   }
 
   const openProductList = () => {
@@ -1072,6 +1190,31 @@ const AdminDashboardScreen = () => {
         onEditTabChange={handleEditTabChange}
         onTabChange={handleTabChange}
         onBack={() => navigate('/admin')}
+      />
+    )
+  }
+
+  if (routeState.screen === 'order-list') {
+    return (
+      <AdminOrderListScreen
+        orders={orders}
+        totalCount={orderCount}
+        onBack={() => navigate('/admin')}
+        onTabChange={handleTabChange}
+        onOpenOrder={handleOpenOrder}
+        onUpdateOrdersStatus={handleUpdateOrdersStatus}
+      />
+    )
+  }
+
+  if (routeState.screen === 'order-detail') {
+    return (
+      <AdminOrderDetailScreen
+        order={activeOrder}
+        onBack={openOrderList}
+        onTabChange={handleTabChange}
+        onUpdateOrderStatus={handleUpdateOrderStatus}
+        onCancelOrder={handleCancelOrder}
       />
     )
   }

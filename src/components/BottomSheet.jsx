@@ -109,7 +109,7 @@ const BottomSheet = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/10"
+      className="fixed inset-0 z-50 bg-black/10 backdrop-blur-sm"
       onClick={onClose}
       aria-hidden={!isOpen}
     >

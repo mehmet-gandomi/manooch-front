@@ -28,7 +28,7 @@ const AdminMenuBar = ({ activeTab = 'dashboard', onTabChange }) => {
               isActive ? 'opacity-100' : 'opacity-30'
             }`}
           >
-            <img src={tab.icon} alt={tab.label} className="w-8 h-8" />
+            <img src={tab.icon} alt={tab.label} className={`w-8 h-8 ${isActive ? 'icon-accent' : ''}`} />
           </button>
         )
       })}
