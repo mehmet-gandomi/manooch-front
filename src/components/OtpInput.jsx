@@ -3,15 +3,15 @@
 
 import { useRef, useEffect } from 'react'
 
-const OtpInput = ({ length = 5, value = '', onChange }) => {
+const OtpInput = ({ length = 5, value = '', onChange, hasError = false, autoFocus = true }) => {
   const inputRefs = useRef([])
 
   useEffect(() => {
     // Focus first input on mount
-    if (inputRefs.current[0]) {
+    if (autoFocus && inputRefs.current[0]) {
       inputRefs.current[0].focus()
     }
-  }, [])
+  }, [autoFocus])
 
   const handleChange = (index, newValue) => {
     // Only allow digits
@@ -69,7 +69,11 @@ const OtpInput = ({ length = 5, value = '', onChange }) => {
           onChange={(e) => handleChange(index, e.target.value)}
           onKeyDown={(e) => handleKeyDown(index, e)}
           onPaste={handlePaste}
-          className="w-16 h-16 bg-bg-base rounded-xl border border-border-light text-center text-lg font-normal text-text-strong outline-none focus:ring-2 focus:ring-primary transition-all"
+          className={`h-14 w-14 rounded-lg border bg-bg-base text-center text-lg font-normal outline-none transition-all focus:ring-2 ${
+            hasError
+              ? 'border-danger text-red-500 focus:ring-red-500'
+              : 'border-border-light text-text-strong focus:ring-primary'
+          }`}
         />
       ))}
     </div>

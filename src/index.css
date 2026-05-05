@@ -22,6 +22,10 @@
   .icon-accent {
     filter: brightness(0) saturate(100%) invert(30%) sepia(81%) saturate(1986%) hue-rotate(232deg) brightness(91%) contrast(99%);
   }
+
+  .icon-auth-success {
+    filter: brightness(0) saturate(100%) invert(13%) sepia(18%) saturate(1025%) hue-rotate(174deg) brightness(93%) contrast(90%);
+  }
 }
 
 @font-face {

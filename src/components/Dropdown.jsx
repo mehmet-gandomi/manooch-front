@@ -13,12 +13,21 @@ const Dropdown = ({
   required = false,
   icon = null,
   showInfoIcon = false,
+  size = 'default',
 }) => {
+  const labelClassName =
+    size === 'compact' ? 'text-sm font-semibold leading-6' : 'text-base font-semibold'
+
+  const selectClassName =
+    size === 'compact'
+      ? 'bg-bg-base h-14 rounded-2xl w-full text-sm font-normal leading-6 text-right outline-none focus:ring-2 focus:ring-primary transition-all appearance-none cursor-pointer'
+      : 'bg-bg-base py-4 rounded-2xl w-full text-base font-normal text-right outline-none focus:ring-2 focus:ring-primary transition-all appearance-none cursor-pointer'
+
   return (
     <div className="flex flex-col gap-1 w-full">
       {/* Label */}
       {label && (
-        <label className="text-base font-semibold text-text-strong text-right w-full">
+        <label className={`${labelClassName} text-text-strong text-right w-full`}>
           {label}
           {required && <span className="text-red-500 mr-1">*</span>}
         </label>
@@ -35,7 +44,7 @@ const Dropdown = ({
           value={value}
           onChange={onChange}
           dir="rtl"
-          className={`bg-bg-base py-4 rounded-2xl w-full text-base font-normal text-right outline-none focus:ring-2 focus:ring-primary transition-all appearance-none cursor-pointer ${
+          className={`${selectClassName} ${
             value === '' ? 'text-[#a3a9b6]' : 'text-text-strong'
           } ${
             icon && showInfoIcon ? 'pr-14 pl-16' : icon ? 'pr-14 pl-12' : showInfoIcon ? 'pr-4 pl-16' : 'px-4 pl-12'

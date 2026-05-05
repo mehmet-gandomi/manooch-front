@@ -24,6 +24,7 @@ export default {
         success: '#22c55e',
         'success-soft': '#e9f9ee',
         'danger-soft': '#ffe8eb',
+        danger: '#ff3b3b',
         'text-strong': '#16161d',
         'text-moderate': '#737377',
         'text-heading': '#3d4350',
