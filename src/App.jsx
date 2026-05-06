@@ -1,15 +1,14 @@
-// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import RegisterScreen from './screens/RegisterScreen'
-import OtpScreen from './screens/OtpScreen'
-import SuccessScreen from './screens/SuccessScreen'
-import UserRegisterScreen from './screens/front/RegisterScreen'
-import UserOtpScreen from './screens/front/OtpScreen'
-import UserOtpErrorScreen from './screens/front/OtpErrorScreen'
-import UserSuccessScreen from './screens/front/SuccessScreen'
-import ProfileFormScreen from './screens/ProfileFormScreen'
-import ShopReadyScreen from './screens/ShopReadyScreen'
-import AdminDashboardScreen from './screens/admin/AdminDashboardScreen'
+import RegisterScreen from './screens/admin/onboarding/RegisterScreen'
+import OtpScreen from './screens/admin/onboarding/OtpScreen'
+import SuccessScreen from './screens/admin/onboarding/SuccessScreen'
+import UserRegisterScreen from './screens/front/auth/RegisterScreen'
+import UserOtpScreen from './screens/front/auth/OtpScreen'
+import UserOtpErrorScreen from './screens/front/auth/OtpErrorScreen'
+import UserSuccessScreen from './screens/front/auth/SuccessScreen'
+import ProfileFormScreen from './screens/admin/onboarding/ProfileFormScreen'
+import ShopReadyScreen from './screens/admin/onboarding/ShopReadyScreen'
+import AdminDashboardScreen from './screens/admin/dashboard/AdminDashboardScreen'
 
 function App() {
   return (
