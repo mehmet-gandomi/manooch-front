@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const formatFarsi = (n) => new Intl.NumberFormat('fa-IR').format(n)
 
@@ -6,6 +6,7 @@ const THUMBS_SHOWN = 2
 
 const ProductGallery = ({ images = [], productName = '' }) => {
   const [lightboxIndex, setLightboxIndex] = useState(null)
+  const touchStartX = useRef(null)
   const extraCount = images.length - 1 - THUMBS_SHOWN
 
   useEffect(() => {
@@ -68,6 +69,15 @@ const ProductGallery = ({ images = [], productName = '' }) => {
         <div
           className="fixed inset-0 z-50 bg-black flex flex-col"
           onClick={() => setLightboxIndex(null)}
+          onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX }}
+          onTouchEnd={(e) => {
+            if (touchStartX.current === null) return
+            const delta = touchStartX.current - e.changedTouches[0].clientX
+            touchStartX.current = null
+            if (Math.abs(delta) < 40) return
+            const total = images.length
+            setLightboxIndex((i) => delta > 0 ? (i + 1) % total : (i - 1 + total) % total)
+          }}
         >
           <button
             onClick={() => setLightboxIndex(null)}
