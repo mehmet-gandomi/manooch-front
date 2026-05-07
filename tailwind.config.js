@@ -40,6 +40,7 @@ export default {
         'red-500': '#ef4444',
         'header-from': '#202a37',         // Admin header gradient start
         'header-to': '#171e27',           // Admin header gradient end
+        'primary-deep': '#004ab5',        // Deeper blue for header gradient end
       },
       maxWidth: {
         sm: '27rem',
