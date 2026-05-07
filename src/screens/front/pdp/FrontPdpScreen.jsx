@@ -44,8 +44,12 @@ import clipThumb3 from '../../../assets/images/front/pdp/3f65144e907b2878a17cd37
 import clipThumb4 from '../../../assets/images/front/pdp/8519d788d573d5744b18e5605060e4eefe522b04_1766233974.png'
 
 const formatFarsi = (n) => new Intl.NumberFormat('fa-IR').format(n)
+const pad2 = (n) => new Intl.NumberFormat('fa-IR', { minimumIntegerDigits: 2 }).format(n)
 
 const WAVEFORM_HEIGHTS = [6, 16, 12, 12, 20, 20, 14, 14, 14, 18, 14, 24, 20, 14, 18, 10, 10]
+
+// Discount end is fixed from page load so the timer doesn't reset on re-render
+const SHIRT_DISCOUNT_END = Date.now() + (1 * 3600 + 7 * 60 + 12) * 1000
 
 const PRODUCTS = {
   shirt: {
@@ -56,6 +60,8 @@ const PRODUCTS = {
     code: '32476-bd',
     category: 'پیراهن',
     price: 300000,
+    originalPrice: 380000,
+    discount: { label: 'شگفت انگیز هیجانی', endsAt: SHIRT_DISCOUNT_END },
     breadcrumb: ['داشبورد'],
     images: [shirtMain, shirtThumb1, shirtThumb2, shirtThumb3, shirtThumb4],
     colors: [
@@ -78,12 +84,11 @@ const PRODUCTS = {
     description: 'پیراهن آستین بلند سبک پلو با پارچه تمام نخ و ابریشمی',
     code: '32476-bd',
     category: 'کلیپس',
-    price: 300000,
     breadcrumb: ['محصولات', 'کلیپس شمعی'],
     images: [clipMain, clipThumb1, clipThumb2, clipThumb3, clipThumb4],
     units: [
-      { name: 'جین', packSize: 12, packUnit: 'عددی' },
-      { name: 'کارتن', packSize: 96, packUnit: 'عددی' },
+      { name: 'جین', packSize: 12, packUnit: 'عددی', price: 300000 },
+      { name: 'کارتن', packSize: 96, packUnit: 'عددی', price: 2200000 },
     ],
     specs: [
       { label: 'قد', value: 'روی کمر' },
@@ -93,7 +98,6 @@ const PRODUCTS = {
   },
 }
 
-// Visual-only checkbox — click handled by parent
 function Checkbox({ checked }) {
   return (
     <div
@@ -118,22 +122,56 @@ function PrimaryCheckbox({ checked }) {
   )
 }
 
-function Waveform({ variant, animated }) {
-  const barColor =
-    variant === 'recording'
-      ? 'bg-danger'
-      : variant === 'dark'
-      ? 'bg-text-strong'
-      : 'bg-primary'
+function Waveform({ animated }) {
   return (
     <div className={`flex items-center gap-0.5 ${animated ? 'animate-pulse' : ''}`}>
       {WAVEFORM_HEIGHTS.map((h, i) => (
         <div
           key={i}
-          className={`w-0.5 rounded-full shrink-0 ${barColor}`}
+          className="w-0.5 rounded-full shrink-0 bg-primary"
           style={{ height: `${h}px` }}
         />
       ))}
+    </div>
+  )
+}
+
+function DiscountTimer({ discount }) {
+  const [timeLeft, setTimeLeft] = useState(Math.max(0, discount.endsAt - Date.now()))
+
+  useEffect(() => {
+    if (timeLeft <= 0) return
+    const id = setInterval(() => {
+      setTimeLeft((t) => {
+        const next = Math.max(0, t - 1000)
+        if (next === 0) clearInterval(id)
+        return next
+      })
+    }, 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  const totalSec = Math.floor(timeLeft / 1000)
+  const h = Math.floor(totalSec / 3600)
+  const m = Math.floor((totalSec % 3600) / 60)
+  const s = totalSec % 60
+
+  return (
+    <div className="flex items-center justify-between bg-order-new-soft rounded-xl px-3 py-2">
+      {/* Timer (left in RTL = second in DOM) */}
+      <span className="text-menu-warning text-sm font-bold tracking-widest" dir="ltr">
+        {pad2(h)} : {pad2(m)} : {pad2(s)}
+      </span>
+
+      {/* Label (right in RTL = first in DOM) */}
+      <div className="flex items-center gap-1.5">
+        <span className="text-menu-warning text-sm font-semibold">{discount.label}</span>
+        {/* orange clock icon — drawn inline since no asset available */}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0">
+          <circle cx="12" cy="12" r="9" stroke="#ff7b06" strokeWidth="1.5" />
+          <path d="M12 7v5l3 3" stroke="#ff7b06" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      </div>
     </div>
   )
 }
@@ -143,21 +181,41 @@ const FrontPdpScreen = () => {
   const { type = 'shirt' } = useParams()
   const product = PRODUCTS[type] || PRODUCTS.shirt
 
-  // Burger menu
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-
-  // Gallery lightbox
   const [lightboxIndex, setLightboxIndex] = useState(null)
 
-  // Voice recording / playback
-  const [voiceBlob, setVoiceBlob] = useState(null)
-  const [isRecording, setIsRecording] = useState(false)
+  // Voice — playback only (admin pre-recorded)
   const [isPlaying, setIsPlaying] = useState(false)
-  const mediaRecorderRef = useRef(null)
-  const chunksRef = useRef([])
   const audioRef = useRef(null)
+  const playTimerRef = useRef(null)
 
-  // Clothing variant state
+  const handleVoicePlay = () => {
+    if (isPlaying) {
+      audioRef.current?.pause()
+      clearTimeout(playTimerRef.current)
+      setIsPlaying(false)
+      return
+    }
+    if (product.audioSrc) {
+      const audio = new Audio(product.audioSrc)
+      audioRef.current = audio
+      audio.onended = () => setIsPlaying(false)
+      audio.play().catch(() => {})
+    } else {
+      // Mock: animate for 4 s when no audio file is wired up yet
+      playTimerRef.current = setTimeout(() => setIsPlaying(false), 4000)
+    }
+    setIsPlaying(true)
+  }
+
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause()
+      clearTimeout(playTimerRef.current)
+    }
+  }, [])
+
+  // Clothing variants
   const [selectedColor, setSelectedColor] = useState(
     product.type === 'clothing' ? product.colors.length - 1 : 0
   )
@@ -186,10 +244,15 @@ const FrontPdpScreen = () => {
     }))
   }
 
-  const selectedUnits = product.type === 'wholesale'
-    ? (product.units || []).filter((u) => unitQty[u.name])
-    : []
+  const selectedUnits =
+    product.type === 'wholesale' ? (product.units || []).filter((u) => unitQty[u.name]) : []
   const hasSelection = product.type === 'wholesale' ? selectedUnits.length > 0 : true
+
+  // Price calculation
+  const totalPrice =
+    product.type === 'wholesale'
+      ? selectedUnits.reduce((sum, u) => sum + (unitQty[u.name] || 0) * u.price, 0)
+      : product.price
 
   const headerGradient =
     product.headerVariant === 'dark'
@@ -198,56 +261,7 @@ const FrontPdpScreen = () => {
   const accentColor =
     product.headerVariant === 'dark' ? 'text-text-strong' : 'text-primary'
 
-  // ── Voice ──────────────────────────────────────────────────────────────────
-  const handleVoiceClick = async () => {
-    if (isRecording) {
-      mediaRecorderRef.current?.stop()
-      setIsRecording(false)
-      return
-    }
-    if (isPlaying) {
-      audioRef.current?.pause()
-      setIsPlaying(false)
-      return
-    }
-    if (voiceBlob) {
-      const url = URL.createObjectURL(voiceBlob)
-      const audio = new Audio(url)
-      audioRef.current = audio
-      audio.onended = () => setIsPlaying(false)
-      audio.play()
-      setIsPlaying(true)
-      return
-    }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      chunksRef.current = []
-      const mr = new MediaRecorder(stream)
-      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data) }
-      mr.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
-        setVoiceBlob(blob)
-        stream.getTracks().forEach((t) => t.stop())
-      }
-      mediaRecorderRef.current = mr
-      mr.start()
-      setIsRecording(true)
-    } catch {
-      // microphone permission denied — silently ignore
-    }
-  }
-
-  // cleanup on unmount
-  useEffect(() => {
-    return () => {
-      audioRef.current?.pause()
-      if (mediaRecorderRef.current?.state === 'recording') {
-        mediaRecorderRef.current.stop()
-      }
-    }
-  }, [])
-
-  // ── Lightbox keyboard navigation ──────────────────────────────────────────
+  // Lightbox keyboard nav
   useEffect(() => {
     if (lightboxIndex === null) return
     const total = product.images.length
@@ -260,14 +274,15 @@ const FrontPdpScreen = () => {
     return () => window.removeEventListener('keydown', handleKey)
   }, [lightboxIndex, product.images.length])
 
-  const waveformVariant = isRecording ? 'recording' : product.headerVariant
+  // Gallery helpers
+  const THUMBS_SHOWN = 2
+  const extraCount = product.images.length - 1 - THUMBS_SHOWN // images not shown in column
 
   return (
     <div dir="rtl" className="mx-auto max-w-sm min-h-screen flex flex-col bg-bg-main">
       {/* ── Header ── */}
       <div className={`bg-gradient-to-b ${headerGradient} rounded-b-xl px-4 pb-4 shrink-0`}>
         <div className="flex items-center justify-between pt-4 pb-2">
-          {/* Shop identity (right side in RTL) */}
           <div className="flex items-center gap-2">
             <button onClick={() => setIsMenuOpen(true)}>
               <img src={menuIcon} alt="منو" className="w-6 h-6" />
@@ -283,7 +298,6 @@ const FrontPdpScreen = () => {
               <span className="text-text-disable-weak text-sm leading-6">کافه رستوران</span>
             </div>
           </div>
-          {/* Back + cart (left side in RTL) */}
           <div className="flex items-center gap-6">
             <button>
               <img src={cartIcon} alt="سبد خرید" className="w-6 h-6" />
@@ -313,26 +327,52 @@ const FrontPdpScreen = () => {
           ))}
         </div>
 
-        {/* ── Image Gallery (horizontal scroll, RTL: main image visible first) ── */}
-        <div dir="rtl" className="overflow-x-auto pb-2">
-          <div className="flex gap-3 px-4 w-max">
-            {/* Main image — first in RTL = rightmost = initially visible */}
-            <button
-              onClick={() => setLightboxIndex(0)}
-              className="shrink-0 rounded-lg overflow-hidden w-64 h-64"
-            >
-              <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
-            </button>
-            {/* Thumbnails — scroll left to reveal */}
-            {product.images.slice(1).map((img, i) => (
+        {/* ── Image Gallery — grid layout ── */}
+        {/* RTL flex: main image (first in DOM) appears on the right */}
+        <div dir="rtl" className="flex gap-2 px-4">
+          {/* Main image — rightmost */}
+          <button
+            onClick={() => setLightboxIndex(0)}
+            className="flex-1 rounded-xl overflow-hidden"
+            style={{ height: `${THUMBS_SHOWN * 80 + (THUMBS_SHOWN - 1) * 8 + 80}px` }}
+          >
+            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+          </button>
+
+          {/* Thumbnail column — leftmost */}
+          <div className="flex flex-col gap-2">
+            {product.images.slice(1, 1 + THUMBS_SHOWN).map((img, i) => (
               <button
                 key={i}
                 onClick={() => setLightboxIndex(i + 1)}
-                className="shrink-0 rounded-lg overflow-hidden w-20 h-20"
+                className="w-20 h-20 rounded-xl overflow-hidden shrink-0"
               >
                 <img src={img} alt="" className="w-full h-full object-cover" />
               </button>
             ))}
+
+            {/* "+N more" slot or plain third thumbnail */}
+            {extraCount > 0 ? (
+              <button
+                onClick={() => setLightboxIndex(1 + THUMBS_SHOWN)}
+                className="w-20 h-20 rounded-xl bg-bg-soft flex items-center justify-center shrink-0"
+              >
+                <span className="text-text-strong text-base font-bold">
+                  +{formatFarsi(extraCount)}
+                </span>
+              </button>
+            ) : product.images[1 + THUMBS_SHOWN] ? (
+              <button
+                onClick={() => setLightboxIndex(1 + THUMBS_SHOWN)}
+                className="w-20 h-20 rounded-xl overflow-hidden shrink-0"
+              >
+                <img
+                  src={product.images[1 + THUMBS_SHOWN]}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ) : null}
           </div>
         </div>
 
@@ -343,46 +383,32 @@ const FrontPdpScreen = () => {
             <div className="w-12 h-1 rounded-full bg-bg-soft" />
           </div>
 
-          {/* Name + voice waveform */}
+          {/* Discount timer (shirt only) */}
+          {product.discount && <DiscountTimer discount={product.discount} />}
+
+          {/* Name + voice player */}
           <div className="border-b border-dashed border-border-light pb-2 flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
               <span className="text-text-strong text-sm font-semibold leading-6 flex-1 text-right pl-2">
                 {product.name}
               </span>
-              {/* Voice player/recorder */}
+
+              {/* Admin voice playback */}
               <button
-                onClick={handleVoiceClick}
+                onClick={handleVoicePlay}
                 className="bg-bg-base rounded-xl px-2 py-1 flex items-center gap-2"
-                title={
-                  isRecording
-                    ? 'توقف ضبط'
-                    : isPlaying
-                    ? 'توقف پخش'
-                    : voiceBlob
-                    ? 'پخش صدا'
-                    : 'ضبط صدا'
-                }
+                title={isPlaying ? 'توقف پخش' : 'پخش صدا'}
               >
-                {isRecording ? (
-                  <div className="w-5 h-5 rounded-full bg-danger shrink-0" />
-                ) : (
-                  <img src={playCircleIcon} alt="پخش/ضبط" className="w-5 h-5 shrink-0" />
-                )}
-                <Waveform
-                  variant={waveformVariant}
-                  animated={isRecording || isPlaying}
-                />
+                <img src={playCircleIcon} alt="پخش" className="w-5 h-5 shrink-0" />
+                <Waveform animated={isPlaying} />
               </button>
             </div>
 
-            {/* Description */}
             <p className="text-text-weak text-xs leading-5 text-right w-full">
               {product.description}
             </p>
 
-            {/* Actions + Tags */}
             <div className="flex items-center justify-between px-1 py-1.5">
-              {/* Tags */}
               <div className="flex items-center gap-1.5">
                 <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-text-heading/10">
                   <span className="text-text-heading text-xs leading-5">{product.category}</span>
@@ -395,7 +421,6 @@ const FrontPdpScreen = () => {
                   <span className={`text-xs leading-5 ${accentColor}`}>{product.code}</span>
                 </div>
               </div>
-              {/* Bookmark + share */}
               <div className="flex items-center gap-3">
                 <button>
                   <img src={shareIcon} alt="اشتراک‌گذاری" className="w-4 h-4" />
@@ -409,7 +434,6 @@ const FrontPdpScreen = () => {
 
           {/* ── Variants ── */}
           <div className="flex flex-col gap-1.5">
-            {/* Clothing: color + size chips */}
             {product.type === 'clothing' && (
               <>
                 <div className="flex flex-col gap-1.5">
@@ -453,7 +477,6 @@ const FrontPdpScreen = () => {
               </>
             )}
 
-            {/* Wholesale: unit rows — outer is a div to allow inner buttons */}
             {product.type === 'wholesale' && (
               <div className="flex flex-col gap-0">
                 <span className="text-text-strong text-sm font-semibold leading-6 text-right mb-1.5">
@@ -482,7 +505,6 @@ const FrontPdpScreen = () => {
                         </span>
                       </div>
 
-                      {/* Quantity stepper — inner buttons are safe here since parent is div */}
                       {isChecked && (
                         <div className="flex items-center gap-1 rounded-lg px-1 py-1">
                           <button
@@ -556,11 +578,20 @@ const FrontPdpScreen = () => {
           ) : null}
 
           {/* Price */}
-          <div className="flex items-center gap-1">
-            <span className={`text-base font-bold leading-8 ${accentColor}`}>
-              {formatFarsi(product.price)}
-            </span>
-            <span className="text-text-weak text-sm leading-6">هزارتومان</span>
+          <div className="flex flex-col items-end">
+            {product.type === 'clothing' && product.originalPrice && (
+              <span className="text-text-weak text-xs line-through leading-4">
+                {formatFarsi(product.originalPrice)} هزارتومان
+              </span>
+            )}
+            <div className="flex items-center gap-1">
+              <span className={`text-base font-bold leading-8 ${accentColor}`}>
+                {product.type === 'wholesale' && hasSelection
+                  ? formatFarsi(totalPrice)
+                  : formatFarsi(product.price)}
+              </span>
+              <span className="text-text-weak text-sm leading-6">هزارتومان</span>
+            </div>
           </div>
         </div>
 
@@ -583,52 +614,31 @@ const FrontPdpScreen = () => {
       {/* ── Burger Menu Drawer ── */}
       <BurgerMenuDrawer isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-      {/* ── Image Lightbox ── */}
+      {/* ── Image Lightbox — full-width, dots only ── */}
       {lightboxIndex !== null && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
+          className="fixed inset-0 z-50 bg-black flex flex-col"
           onClick={() => setLightboxIndex(null)}
         >
           {/* Close */}
           <button
             onClick={() => setLightboxIndex(null)}
-            className="absolute top-4 right-4 text-text-white text-2xl w-8 h-8 flex items-center justify-center"
+            className="absolute top-4 right-4 text-white text-2xl w-8 h-8 flex items-center justify-center z-10"
           >
             ×
           </button>
 
-          {/* Prev (scroll toward start in RTL = move right visually) */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              setLightboxIndex((i) => (i - 1 + product.images.length) % product.images.length)
-            }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-text-white text-4xl w-10 h-10 flex items-center justify-center"
-          >
-            ›
-          </button>
-
-          {/* Current image */}
-          <img
-            src={product.images[lightboxIndex]}
-            alt={product.name}
-            className="max-w-[85vw] max-h-[80vh] object-contain rounded-xl"
-            onClick={(e) => e.stopPropagation()}
-          />
-
-          {/* Next */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              setLightboxIndex((i) => (i + 1) % product.images.length)
-            }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-text-white text-4xl w-10 h-10 flex items-center justify-center"
-          >
-            ‹
-          </button>
+          {/* Full-width image */}
+          <div className="flex-1 flex items-center" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={product.images[lightboxIndex]}
+              alt={product.name}
+              className="w-full object-contain"
+            />
+          </div>
 
           {/* Dot indicators */}
-          <div className="absolute bottom-6 flex gap-1.5 items-center">
+          <div className="flex justify-center gap-1.5 pb-8 pt-4">
             {product.images.map((_, i) => (
               <button
                 key={i}
