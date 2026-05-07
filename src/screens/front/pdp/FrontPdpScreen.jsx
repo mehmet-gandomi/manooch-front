@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import BurgerMenuDrawer from '../../../components/front/BurgerMenuDrawer'
 
 // Icons
 import arrowLeftIcon from '../../../assets/images/front/pdp/arrow-left-1.svg'
@@ -11,9 +12,9 @@ import bookmarkIcon from '../../../assets/images/front/pdp/bookmark.svg'
 import shareIcon from '../../../assets/images/front/pdp/share-1.svg'
 import playCircleIcon from '../../../assets/images/front/pdp/play-circle.svg'
 import checkIcon from '../../../assets/images/front/pdp/check.svg'
-import CartShop from '../../../assets/images/front/pdp/cart-shop.svg'
-import add from '../../../assets/images/front/pdp/add.svg'
-import minus from '../../../assets/images/front/pdp/minus.svg'
+import cartShopIcon from '../../../assets/images/front/pdp/cart-shop.svg'
+import addIcon from '../../../assets/images/front/pdp/add.svg'
+import minusIcon from '../../../assets/images/front/pdp/minus.svg'
 
 // Bottom nav icons
 import locationLoveIcon from '../../../assets/images/front/pdp/location-love-2.svg'
@@ -44,7 +45,6 @@ import clipThumb4 from '../../../assets/images/front/pdp/8519d788d573d5744b18e56
 
 const formatFarsi = (n) => new Intl.NumberFormat('fa-IR').format(n)
 
-// Waveform bar heights from Figma design
 const WAVEFORM_HEIGHTS = [6, 16, 12, 12, 20, 20, 14, 14, 14, 18, 14, 24, 20, 14, 18, 10, 10]
 
 const PRODUCTS = {
@@ -57,9 +57,7 @@ const PRODUCTS = {
     category: 'پیراهن',
     price: 300000,
     breadcrumb: ['داشبورد'],
-    mainImage: shirtMain,
-    thumbCol1: [shirtThumb1, shirtThumb2],
-    thumbCol2: [shirtThumb3, shirtThumb4],
+    images: [shirtMain, shirtThumb1, shirtThumb2, shirtThumb3, shirtThumb4],
     colors: [
       { name: 'آبی', ellipse: ellipseBlue },
       { name: 'قرمز', ellipse: ellipseRed },
@@ -82,9 +80,7 @@ const PRODUCTS = {
     category: 'کلیپس',
     price: 300000,
     breadcrumb: ['محصولات', 'کلیپس شمعی'],
-    mainImage: clipMain,
-    thumbCol1: [clipThumb1, clipThumb2],
-    thumbCol2: [clipThumb3, clipThumb4],
+    images: [clipMain, clipThumb1, clipThumb2, clipThumb3, clipThumb4],
     units: [
       { name: 'جین', packSize: 12, packUnit: 'عددی' },
       { name: 'کارتن', packSize: 96, packUnit: 'عددی' },
@@ -97,10 +93,40 @@ const PRODUCTS = {
   },
 }
 
-function Waveform({ variant }) {
-  const barColor = variant === 'dark' ? 'bg-text-strong' : 'bg-primary'
+// Visual-only checkbox — click handled by parent
+function Checkbox({ checked }) {
   return (
-    <div className="flex items-center gap-0.5">
+    <div
+      className={`w-3 h-3 rounded-[6px] shrink-0 flex items-center justify-center border transition-colors ${
+        checked ? 'bg-text-strong border-text-strong' : 'bg-bg-main border-border-light'
+      }`}
+    >
+      {checked && <img src={checkIcon} alt="" className="w-2 h-2" />}
+    </div>
+  )
+}
+
+function PrimaryCheckbox({ checked }) {
+  return (
+    <div
+      className={`w-4 h-4 rounded-[4px] shrink-0 flex items-center justify-center border transition-colors ${
+        checked ? 'bg-primary border-primary' : 'bg-bg-main border-border-light'
+      }`}
+    >
+      {checked && <img src={checkIcon} alt="" className="w-2.5 h-2.5" />}
+    </div>
+  )
+}
+
+function Waveform({ variant, animated }) {
+  const barColor =
+    variant === 'recording'
+      ? 'bg-danger'
+      : variant === 'dark'
+      ? 'bg-text-strong'
+      : 'bg-primary'
+  return (
+    <div className={`flex items-center gap-0.5 ${animated ? 'animate-pulse' : ''}`}>
       {WAVEFORM_HEIGHTS.map((h, i) => (
         <div
           key={i}
@@ -112,42 +138,26 @@ function Waveform({ variant }) {
   )
 }
 
-function Checkbox({ checked, onToggle }) {
-  return (
-    <button
-      onClick={onToggle}
-      className={`w-3 h-3 rounded-[6px] shrink-0 flex items-center justify-center border transition-colors ${
-        checked
-          ? 'bg-text-strong border-text-strong'
-          : 'bg-bg-main border-border-light'
-      }`}
-    >
-      {checked && <img src={checkIcon} alt="" className="w-2 h-2" />}
-    </button>
-  )
-}
-
-function PrimaryCheckbox({ checked, onToggle }) {
-  return (
-    <button
-      onClick={onToggle}
-      className={`w-4 h-4 rounded-[4px] shrink-0 flex items-center justify-center border transition-colors ${
-        checked
-          ? 'bg-primary border-primary'
-          : 'bg-bg-main border-border-light'
-      }`}
-    >
-      {checked && <img src={checkIcon} alt="" className="w-2.5 h-2.5" />}
-    </button>
-  )
-}
-
 const FrontPdpScreen = () => {
   const navigate = useNavigate()
   const { type = 'shirt' } = useParams()
   const product = PRODUCTS[type] || PRODUCTS.shirt
 
-  // Clothing state
+  // Burger menu
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  // Gallery lightbox
+  const [lightboxIndex, setLightboxIndex] = useState(null)
+
+  // Voice recording / playback
+  const [voiceBlob, setVoiceBlob] = useState(null)
+  const [isRecording, setIsRecording] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const mediaRecorderRef = useRef(null)
+  const chunksRef = useRef([])
+  const audioRef = useRef(null)
+
+  // Clothing variant state
   const [selectedColor, setSelectedColor] = useState(
     product.type === 'clothing' ? product.colors.length - 1 : 0
   )
@@ -155,7 +165,7 @@ const FrontPdpScreen = () => {
     product.type === 'clothing' ? product.sizes.length - 1 : 0
   )
 
-  // Wholesale state: { unitName: quantity }
+  // Wholesale unit quantities
   const [unitQty, setUnitQty] = useState({})
 
   const toggleUnit = (unitName) => {
@@ -170,33 +180,96 @@ const FrontPdpScreen = () => {
   }
 
   const changeQty = (unitName, delta) => {
-    setUnitQty((prev) => {
-      const next = Math.max(1, (prev[unitName] || 1) + delta)
-      return { ...prev, [unitName]: next }
-    })
+    setUnitQty((prev) => ({
+      ...prev,
+      [unitName]: Math.max(1, (prev[unitName] || 1) + delta),
+    }))
   }
 
   const selectedUnits = product.type === 'wholesale'
     ? (product.units || []).filter((u) => unitQty[u.name])
     : []
-
   const hasSelection = product.type === 'wholesale' ? selectedUnits.length > 0 : true
 
   const headerGradient =
     product.headerVariant === 'dark'
       ? 'from-header-from to-header-to'
       : 'from-primary to-primary-deep'
+  const accentColor =
+    product.headerVariant === 'dark' ? 'text-text-strong' : 'text-primary'
 
-  const accentColor = product.headerVariant === 'dark' ? 'text-text-strong' : 'text-primary'
+  // ── Voice ──────────────────────────────────────────────────────────────────
+  const handleVoiceClick = async () => {
+    if (isRecording) {
+      mediaRecorderRef.current?.stop()
+      setIsRecording(false)
+      return
+    }
+    if (isPlaying) {
+      audioRef.current?.pause()
+      setIsPlaying(false)
+      return
+    }
+    if (voiceBlob) {
+      const url = URL.createObjectURL(voiceBlob)
+      const audio = new Audio(url)
+      audioRef.current = audio
+      audio.onended = () => setIsPlaying(false)
+      audio.play()
+      setIsPlaying(true)
+      return
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      chunksRef.current = []
+      const mr = new MediaRecorder(stream)
+      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data) }
+      mr.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
+        setVoiceBlob(blob)
+        stream.getTracks().forEach((t) => t.stop())
+      }
+      mediaRecorderRef.current = mr
+      mr.start()
+      setIsRecording(true)
+    } catch {
+      // microphone permission denied — silently ignore
+    }
+  }
+
+  // cleanup on unmount
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause()
+      if (mediaRecorderRef.current?.state === 'recording') {
+        mediaRecorderRef.current.stop()
+      }
+    }
+  }, [])
+
+  // ── Lightbox keyboard navigation ──────────────────────────────────────────
+  useEffect(() => {
+    if (lightboxIndex === null) return
+    const total = product.images.length
+    const handleKey = (e) => {
+      if (e.key === 'Escape') setLightboxIndex(null)
+      if (e.key === 'ArrowLeft') setLightboxIndex((i) => (i + 1) % total)
+      if (e.key === 'ArrowRight') setLightboxIndex((i) => (i - 1 + total) % total)
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [lightboxIndex, product.images.length])
+
+  const waveformVariant = isRecording ? 'recording' : product.headerVariant
 
   return (
     <div dir="rtl" className="mx-auto max-w-sm min-h-screen flex flex-col bg-bg-main">
-      {/* Header */}
+      {/* ── Header ── */}
       <div className={`bg-gradient-to-b ${headerGradient} rounded-b-xl px-4 pb-4 shrink-0`}>
         <div className="flex items-center justify-between pt-4 pb-2">
-          {/* Right: shop info + avatar + menu */}
+          {/* Shop identity (right side in RTL) */}
           <div className="flex items-center gap-2">
-            <button>
+            <button onClick={() => setIsMenuOpen(true)}>
               <img src={menuIcon} alt="منو" className="w-6 h-6" />
             </button>
             <div className="w-10 h-10 rounded-full overflow-hidden shrink-0">
@@ -210,7 +283,7 @@ const FrontPdpScreen = () => {
               <span className="text-text-disable-weak text-sm leading-6">کافه رستوران</span>
             </div>
           </div>
-          {/* Left: back + cart */}
+          {/* Back + cart (left side in RTL) */}
           <div className="flex items-center gap-6">
             <button>
               <img src={cartIcon} alt="سبد خرید" className="w-6 h-6" />
@@ -222,7 +295,7 @@ const FrontPdpScreen = () => {
         </div>
       </div>
 
-      {/* Scrollable content */}
+      {/* ── Scrollable content ── */}
       <div className="flex-1 overflow-y-auto">
         {/* Breadcrumb */}
         <div className="flex items-center gap-0.5 px-4 py-2">
@@ -231,9 +304,7 @@ const FrontPdpScreen = () => {
               {i > 0 && <span className="text-text-weak text-sm">/</span>}
               <span
                 className={`text-sm leading-6 ${
-                  i === product.breadcrumb.length - 1
-                    ? accentColor
-                    : 'text-text-weak'
+                  i === product.breadcrumb.length - 1 ? accentColor : 'text-text-weak'
                 }`}
               >
                 {crumb}
@@ -242,76 +313,66 @@ const FrontPdpScreen = () => {
           ))}
         </div>
 
-        {/* Image Gallery */}
-        <div dir="ltr" className="flex gap-3 items-center overflow-hidden px-4">
-          {/* Thumbnail column 1: tall + short */}
-          <div className="flex flex-col gap-2 shrink-0">
-            <div className="w-[82px] h-[168px] rounded-lg overflow-hidden">
-              <img
-                src={product.thumbCol1[0]}
-                alt=""
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="w-[82px] h-20 rounded-lg overflow-hidden">
-              <img
-                src={product.thumbCol1[1]}
-                alt=""
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-
-          {/* Thumbnail column 2: short + short + placeholder */}
-          <div className="flex flex-col gap-2 shrink-0">
-            <div className="w-20 h-20 rounded-lg overflow-hidden">
-              <img
-                src={product.thumbCol2[0]}
-                alt=""
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="w-20 h-20 rounded-lg overflow-hidden">
-              <img
-                src={product.thumbCol2[1]}
-                alt=""
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="w-20 h-20 rounded-lg border border-dashed border-border-light bg-bg-base flex items-center justify-center">
-              <span className="text-xs text-text-strong">+۳</span>
-            </div>
-          </div>
-
-          {/* Main image */}
-          <div className="w-64 h-64 rounded-lg overflow-hidden shrink-0">
-            <img
-              src={product.mainImage}
-              alt={product.name}
-              className="w-full h-full object-cover"
-            />
+        {/* ── Image Gallery (horizontal scroll, RTL: main image visible first) ── */}
+        <div dir="rtl" className="overflow-x-auto pb-2">
+          <div className="flex gap-3 px-4 w-max">
+            {/* Main image — first in RTL = rightmost = initially visible */}
+            <button
+              onClick={() => setLightboxIndex(0)}
+              className="shrink-0 rounded-lg overflow-hidden w-64 h-64"
+            >
+              <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+            </button>
+            {/* Thumbnails — scroll left to reveal */}
+            {product.images.slice(1).map((img, i) => (
+              <button
+                key={i}
+                onClick={() => setLightboxIndex(i + 1)}
+                className="shrink-0 rounded-lg overflow-hidden w-20 h-20"
+              >
+                <img src={img} alt="" className="w-full h-full object-cover" />
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Product Info Card */}
-        <div className="bg-bg-main rounded-t-xl shadow-[-30px_20px_30px_rgba(41,45,53,0.2)] mt-3 px-4 py-3 flex flex-col gap-4">
+        {/* ── Product Info Card ── */}
+        <div className="bg-bg-main rounded-t-xl shadow-[-30px_20px_30px_rgba(41,45,53,0.2)] mt-2 px-4 py-3 flex flex-col gap-4">
           {/* Drag handle */}
           <div className="flex justify-center">
             <div className="w-12 h-1 rounded-full bg-bg-soft" />
           </div>
 
-          {/* Header row: waveform + name */}
+          {/* Name + voice waveform */}
           <div className="border-b border-dashed border-border-light pb-2 flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              {/* Product name */}
               <span className="text-text-strong text-sm font-semibold leading-6 flex-1 text-right pl-2">
                 {product.name}
               </span>
-              {/* Voice waveform player */}
-              <div className="bg-bg-base rounded-xl px-2 py-1 flex items-center gap-2">
-                <img src={playCircleIcon} alt="پخش" className="w-5 h-5 shrink-0" />
-                <Waveform variant={product.headerVariant} />
-              </div>
+              {/* Voice player/recorder */}
+              <button
+                onClick={handleVoiceClick}
+                className="bg-bg-base rounded-xl px-2 py-1 flex items-center gap-2"
+                title={
+                  isRecording
+                    ? 'توقف ضبط'
+                    : isPlaying
+                    ? 'توقف پخش'
+                    : voiceBlob
+                    ? 'پخش صدا'
+                    : 'ضبط صدا'
+                }
+              >
+                {isRecording ? (
+                  <div className="w-5 h-5 rounded-full bg-danger shrink-0" />
+                ) : (
+                  <img src={playCircleIcon} alt="پخش/ضبط" className="w-5 h-5 shrink-0" />
+                )}
+                <Waveform
+                  variant={waveformVariant}
+                  animated={isRecording || isPlaying}
+                />
+              </button>
             </div>
 
             {/* Description */}
@@ -323,23 +384,15 @@ const FrontPdpScreen = () => {
             <div className="flex items-center justify-between px-1 py-1.5">
               {/* Tags */}
               <div className="flex items-center gap-1.5">
-                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg backdrop-blur-sm bg-text-heading/10">
+                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-text-heading/10">
                   <span className="text-text-heading text-xs leading-5">{product.category}</span>
                 </div>
                 <div
-                  className={`flex items-center gap-1 px-1.5 py-0.5 rounded-lg backdrop-blur-sm ${
-                    product.headerVariant === 'dark'
-                      ? 'bg-header-from/10'
-                      : 'bg-primary/10'
+                  className={`flex items-center gap-1 px-1.5 py-0.5 rounded-lg ${
+                    product.headerVariant === 'dark' ? 'bg-header-from/10' : 'bg-primary/10'
                   }`}
                 >
-                  <span
-                    className={`text-xs leading-5 ${
-                      product.headerVariant === 'dark' ? 'text-text-heading' : 'text-primary'
-                    }`}
-                  >
-                    {product.code}
-                  </span>
+                  <span className={`text-xs leading-5 ${accentColor}`}>{product.code}</span>
                 </div>
               </div>
               {/* Bookmark + share */}
@@ -354,34 +407,25 @@ const FrontPdpScreen = () => {
             </div>
           </div>
 
-          {/* Variants section */}
+          {/* ── Variants ── */}
           <div className="flex flex-col gap-1.5">
-            {/* === CLOTHING: Color + Size selectors === */}
+            {/* Clothing: color + size chips */}
             {product.type === 'clothing' && (
               <>
-                {/* Color selector */}
                 <div className="flex flex-col gap-1.5">
-                  <div className="w-full text-right">
-                    <span className="text-text-strong text-sm font-semibold leading-6">
-                      رنگ :{' '}
-                      {product.colors[selectedColor]?.name}
-                    </span>
-                  </div>
+                  <span className="text-text-strong text-sm font-semibold leading-6 text-right">
+                    رنگ : {product.colors[selectedColor]?.name}
+                  </span>
                   <div className="flex flex-wrap gap-2">
                     {product.colors.map((color, i) => (
                       <button
                         key={i}
                         onClick={() => setSelectedColor(i)}
-                        className={`flex items-center gap-1 px-1.5 py-0.5 rounded-lg backdrop-blur-sm transition-colors ${
-                          selectedColor === i
-                            ? 'bg-text-heading/15'
-                            : 'bg-text-heading/10'
+                        className={`flex items-center gap-1 px-1.5 py-0.5 rounded-lg transition-colors ${
+                          selectedColor === i ? 'bg-text-heading/15' : 'bg-text-heading/10'
                         }`}
                       >
-                        <Checkbox
-                          checked={selectedColor === i}
-                          onToggle={() => setSelectedColor(i)}
-                        />
+                        <Checkbox checked={selectedColor === i} />
                         <img src={color.ellipse} alt={color.name} className="w-3 h-3" />
                         <span className="text-text-heading text-xs leading-5">{color.name}</span>
                       </button>
@@ -389,25 +433,18 @@ const FrontPdpScreen = () => {
                   </div>
                 </div>
 
-                {/* Size selector */}
                 <div className="flex flex-col gap-1.5">
-                  <div className="w-full text-right">
-                    <span className="text-text-strong text-sm font-semibold leading-6">
-                      سایز :{' '}
-                      {product.sizes[selectedSize]}
-                    </span>
-                  </div>
+                  <span className="text-text-strong text-sm font-semibold leading-6 text-right">
+                    سایز : {product.sizes[selectedSize]}
+                  </span>
                   <div className="flex flex-wrap gap-2">
                     {product.sizes.map((size, i) => (
                       <button
                         key={i}
                         onClick={() => setSelectedSize(i)}
-                        className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg backdrop-blur-sm bg-text-heading/10"
+                        className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-text-heading/10"
                       >
-                        <Checkbox
-                          checked={selectedSize === i}
-                          onToggle={() => setSelectedSize(i)}
-                        />
+                        <Checkbox checked={selectedSize === i} />
                         <span className="text-text-heading text-xs leading-5">{size}</span>
                       </button>
                     ))}
@@ -416,54 +453,55 @@ const FrontPdpScreen = () => {
               </>
             )}
 
-            {/* === WHOLESALE: Unit selectors === */}
+            {/* Wholesale: unit rows — outer is a div to allow inner buttons */}
             {product.type === 'wholesale' && (
               <div className="flex flex-col gap-0">
-                <div className="w-full text-right mb-1.5">
-                  <span className="text-text-strong text-sm font-semibold leading-6">واحد فروش</span>
-                </div>
+                <span className="text-text-strong text-sm font-semibold leading-6 text-right mb-1.5">
+                  واحد فروش
+                </span>
                 {product.units.map((unit) => {
                   const isChecked = !!unitQty[unit.name]
                   const qty = unitQty[unit.name] || 0
                   return (
-                    <div key={unit.name} className="mb-0">
-                      <button
-                        onClick={() => toggleUnit(unit.name)}
-                        className="w-full flex items-center justify-end gap-2 border border-border-light rounded-lg px-3 py-1.5 bg-bg-main mb-2"
-                      >
-                        <PrimaryCheckbox
-                          checked={isChecked}
-                          onToggle={() => toggleUnit(unit.name)}
-                        />
+                    <div
+                      key={unit.name}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => toggleUnit(unit.name)}
+                      onKeyDown={(e) =>
+                        (e.key === 'Enter' || e.key === ' ') && toggleUnit(unit.name)
+                      }
+                      className="flex items-center gap-2 border border-border-light rounded-lg px-3 py-1.5 bg-bg-main mb-2 cursor-pointer"
+                    >
+                      <PrimaryCheckbox checked={isChecked} />
 
-                        <div className="flex-1 flex flex-col items-start gap-1 text-right">
-                          <span className="text-text-weak text-xs leading-5">{unit.name}</span>
-                          <span className="text-text-strong text-sm font-semibold leading-6">
-                            {formatFarsi(unit.packSize)} {unit.packUnit}
+                      <div className="flex-1 flex flex-col items-start gap-0.5 text-right">
+                        <span className="text-text-weak text-xs leading-5">{unit.name}</span>
+                        <span className="text-text-strong text-sm font-semibold leading-6">
+                          {formatFarsi(unit.packSize)} {unit.packUnit}
+                        </span>
+                      </div>
+
+                      {/* Quantity stepper — inner buttons are safe here since parent is div */}
+                      {isChecked && (
+                        <div className="flex items-center gap-1 rounded-lg px-1 py-1">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); changeQty(unit.name, 1) }}
+                            className="w-5 h-5 flex items-center justify-center"
+                          >
+                            <img src={addIcon} alt="+" className="w-5 h-5" />
+                          </button>
+                          <span className="text-primary text-sm font-semibold leading-6 min-w-[20px] text-center">
+                            {formatFarsi(qty)}
                           </span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); changeQty(unit.name, -1) }}
+                            className="w-5 h-5 flex items-center justify-center"
+                          >
+                            <img src={minusIcon} alt="−" className="w-5 h-5" />
+                          </button>
                         </div>
-
-                        {/* Stepper (visible when selected) */}
-                        {isChecked && (
-                          <div className="flex items-center gap-1.5 rounded-lg px-1.5 py-1">
-                            <button
-                              onClick={(e) => { e.stopPropagation(); changeQty(unit.name, 1) }}
-                              className="w-5 h-5 flex items-center justify-center text-text-weak text-base leading-none"
-                            >
-                              <img src={add} alt="زیاد" />
-                            </button>
-                            <span className="text-primary text-sm font-semibold leading-6 min-w-[16px] text-center">
-                              {formatFarsi(qty)}
-                            </span>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); changeQty(unit.name, -1) }}
-                              className="w-5 h-5 flex items-center justify-center text-text-weak text-base leading-none"
-                            >
-                              <img src={minus} alt="کم" />
-                            </button>
-                          </div>
-                        )}
-                      </button>
+                      )}
                     </div>
                   )
                 })}
@@ -473,15 +511,12 @@ const FrontPdpScreen = () => {
 
           {/* Product Specs */}
           <div className="flex flex-col gap-1.5">
-            <div className="w-full text-right">
-              <span className="text-text-strong text-sm font-semibold leading-6">مشخصات کالا</span>
-            </div>
+            <span className="text-text-strong text-sm font-semibold leading-6 text-right">
+              مشخصات کالا
+            </span>
             <div className="flex gap-2 items-center flex-wrap">
               {product.specs.map((spec, i) => (
-                <div
-                  key={i}
-                  className="bg-bg-base flex flex-col px-3 py-1.5 rounded-lg gap-1"
-                >
+                <div key={i} className="bg-bg-base flex flex-col px-3 py-1.5 rounded-lg gap-0.5">
                   <span className="text-text-weak text-xs leading-5">{spec.label}</span>
                   <span className="text-text-strong text-sm font-semibold leading-6">{spec.value}</span>
                 </div>
@@ -489,32 +524,27 @@ const FrontPdpScreen = () => {
             </div>
           </div>
 
-          {/* Bottom spacer for sticky bar */}
           <div className="h-20" />
         </div>
       </div>
 
-      {/* Sticky Bottom Bar */}
+      {/* ── Sticky Bottom Bar ── */}
       <div className="sticky bottom-0 bg-bg-main border-t border-border-light shrink-0">
         <div className="flex items-center justify-between px-4 py-2">
-          {/* Action */}
+          {/* Action button */}
           {product.type === 'clothing' ? (
-            <button className="bg-header-from text-text-white text-sm rounded-lg px-4 py-3">
+            <button className="bg-header-from text-text-white text-sm rounded-xl px-4 py-3">
               افزودن به سبد
             </button>
           ) : hasSelection ? (
-            <div className="flex items-center gap-1">
-              {/* Cart icon button */}
-              <button className="rounded-xl p-2">
-                <img src={CartShop} alt="افزودن" className="w-6 h-6" />
+            <div className="flex items-center gap-2">
+              <button className="rounded-xl p-1">
+                <img src={cartShopIcon} alt="افزودن به سبد" className="w-6 h-6" />
               </button>
-              {/* Quantity summary */}
               <div className="flex items-center gap-1.5">
                 {selectedUnits.map((unit, i) => (
                   <div key={unit.name} className="flex items-center gap-1">
-                    {i > 0 && (
-                      <span className="text-text-weak text-sm mx-0.5">|</span>
-                    )}
+                    {i > 0 && <span className="text-text-weak text-sm">|</span>}
                     <span className="text-text-heading text-sm font-bold leading-6">
                       {formatFarsi(unitQty[unit.name])}
                     </span>
@@ -524,7 +554,7 @@ const FrontPdpScreen = () => {
               </div>
             </div>
           ) : null}
-          
+
           {/* Price */}
           <div className="flex items-center gap-1">
             <span className={`text-base font-bold leading-8 ${accentColor}`}>
@@ -543,15 +573,74 @@ const FrontPdpScreen = () => {
             { icon: linkIcon, alt: 'لینک' },
             { icon: locationLoveIcon, alt: 'علاقه‌مندی‌ها' },
           ].map(({ icon, alt, active }) => (
-            <button
-              key={alt}
-              className={`flex-1 flex flex-col items-center py-4`}
-            >
+            <button key={alt} className="flex-1 flex flex-col items-center py-4">
               <img src={icon} alt={alt} className={`w-8 h-8 ${active ? 'icon-accent' : ''}`} />
             </button>
           ))}
         </div>
       </div>
+
+      {/* ── Burger Menu Drawer ── */}
+      <BurgerMenuDrawer isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+
+      {/* ── Image Lightbox ── */}
+      {lightboxIndex !== null && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
+          onClick={() => setLightboxIndex(null)}
+        >
+          {/* Close */}
+          <button
+            onClick={() => setLightboxIndex(null)}
+            className="absolute top-4 right-4 text-text-white text-2xl w-8 h-8 flex items-center justify-center"
+          >
+            ×
+          </button>
+
+          {/* Prev (scroll toward start in RTL = move right visually) */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setLightboxIndex((i) => (i - 1 + product.images.length) % product.images.length)
+            }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-text-white text-4xl w-10 h-10 flex items-center justify-center"
+          >
+            ›
+          </button>
+
+          {/* Current image */}
+          <img
+            src={product.images[lightboxIndex]}
+            alt={product.name}
+            className="max-w-[85vw] max-h-[80vh] object-contain rounded-xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Next */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setLightboxIndex((i) => (i + 1) % product.images.length)
+            }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-text-white text-4xl w-10 h-10 flex items-center justify-center"
+          >
+            ‹
+          </button>
+
+          {/* Dot indicators */}
+          <div className="absolute bottom-6 flex gap-1.5 items-center">
+            {product.images.map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => { e.stopPropagation(); setLightboxIndex(i) }}
+                className={`rounded-full transition-all ${
+                  i === lightboxIndex ? 'w-4 h-2 bg-white' : 'w-2 h-2 bg-white/40'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
