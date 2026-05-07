@@ -30,18 +30,18 @@ import ellipseGreen from '../../../assets/images/front/pdp/Ellipse 1-2.svg'
 import ellipseBlack from '../../../assets/images/front/pdp/Ellipse 1-3.svg'
 
 // Shirt product images
-import shirtMain from '../../../assets/images/front/pdp/Rectangle 2.png'
-import shirtThumb1 from '../../../assets/images/front/pdp/Rectangle 3.png'
-import shirtThumb2 from '../../../assets/images/front/pdp/Rectangle 3-1.png'
-import shirtThumb3 from '../../../assets/images/front/pdp/Rectangle 4.png'
-import shirtThumb4 from '../../../assets/images/front/pdp/Rectangle 4-1.png'
+import shirtMain from '../../../assets/images/front/pdp/product-image.png'
+import shirtThumb1 from '../../../assets/images/front/pdp/product-image.png'
+import shirtThumb2 from '../../../assets/images/front/pdp/product-image.png'
+import shirtThumb3 from '../../../assets/images/front/pdp/product-image.png'
+import shirtThumb4 from '../../../assets/images/front/pdp/product-image.png'
 
 // Clip product images
-import clipMain from '../../../assets/images/front/pdp/3ff07cee-dd00-308e-a51e-a3a86eb4603a.jpg'
-import clipThumb1 from '../../../assets/images/front/pdp/01bb1f4933961704c04894b8a35297937b275131_1766234239.png'
-import clipThumb2 from '../../../assets/images/front/pdp/09f64bf10ccfa3ff8364bb197b70bb89b78945ff_1766234156.png'
-import clipThumb3 from '../../../assets/images/front/pdp/3f65144e907b2878a17cd3774b64513865a7f940_1766233965.png'
-import clipThumb4 from '../../../assets/images/front/pdp/8519d788d573d5744b18e5605060e4eefe522b04_1766233974.png'
+import clipMain from '../../../assets/images/front/pdp/product-image.png'
+import clipThumb1 from '../../../assets/images/front/pdp/product-image.png'
+import clipThumb2 from '../../../assets/images/front/pdp/product-image.png'
+import clipThumb3 from '../../../assets/images/front/pdp/product-image.png'
+import clipThumb4 from '../../../assets/images/front/pdp/product-image.png'
 
 const formatFarsi = (n) => new Intl.NumberFormat('fa-IR').format(n)
 const pad2 = (n) => new Intl.NumberFormat('fa-IR', { minimumIntegerDigits: 2 }).format(n)
@@ -157,21 +157,21 @@ function DiscountTimer({ discount }) {
   const s = totalSec % 60
 
   return (
-    <div className="flex items-center justify-between bg-order-new-soft rounded-xl px-3 py-2">
-      {/* Timer (left in RTL = second in DOM) */}
-      <span className="text-menu-warning text-sm font-bold tracking-widest" dir="ltr">
-        {pad2(h)} : {pad2(m)} : {pad2(s)}
-      </span>
-
+    <div className="flex items-center justify-between bg-order-new-soft rounded-tl-xl rounded-tr-xl px-3 py-2 mt-2 border-t border-menu-warning">
       {/* Label (right in RTL = first in DOM) */}
       <div className="flex items-center gap-1.5">
-        <span className="text-menu-warning text-sm font-semibold">{discount.label}</span>
         {/* orange clock icon — drawn inline since no asset available */}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0">
           <circle cx="12" cy="12" r="9" stroke="#ff7b06" strokeWidth="1.5" />
           <path d="M12 7v5l3 3" stroke="#ff7b06" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
+        <span className="text-menu-warning text-sm font-semibold">{discount.label}</span>
       </div>
+      
+      {/* Timer (left in RTL = second in DOM) */}
+      <span className="text-menu-warning text-sm font-bold tracking-widest" dir="ltr">
+        {pad2(h)} : {pad2(m)} : {pad2(s)}
+      </span>
     </div>
   )
 }
@@ -376,15 +376,15 @@ const FrontPdpScreen = () => {
           </div>
         </div>
 
+        {/* Discount timer (shirt only) */}
+        {product.discount && <DiscountTimer discount={product.discount} />}
+
         {/* ── Product Info Card ── */}
         <div className="bg-bg-main rounded-t-xl shadow-[-30px_20px_30px_rgba(41,45,53,0.2)] mt-2 px-4 py-3 flex flex-col gap-4">
           {/* Drag handle */}
           <div className="flex justify-center">
             <div className="w-12 h-1 rounded-full bg-bg-soft" />
           </div>
-
-          {/* Discount timer (shirt only) */}
-          {product.discount && <DiscountTimer discount={product.discount} />}
 
           {/* Name + voice player */}
           <div className="border-b border-dashed border-border-light pb-2 flex flex-col gap-1.5">
