@@ -42,3 +42,11 @@ body {
   background-color: #fefefe;
   direction: rtl;
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

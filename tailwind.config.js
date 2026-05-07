@@ -41,6 +41,11 @@ export default {
         'header-from': '#202a37',         // Admin header gradient start
         'header-to': '#171e27',           // Admin header gradient end
         'primary-deep': '#004ab5',        // Deeper blue for header gradient end
+        'store-green': '#2fa04e',         // Front green store gradient start
+        'store-green-deep': '#0b431c',    // Front green store gradient end
+        'store-red': '#ed1944',           // Front red store gradient start
+        'store-red-deep': '#a81230',      // Front red store gradient end
+        secondary: '#0da9de',             // "View all" links, secondary actions
       },
       maxWidth: {
         sm: '27rem',
