@@ -3,15 +3,13 @@ import { useParams } from 'react-router-dom'
 
 import BurgerMenuDrawer from '../../../components/front/BurgerMenuDrawer'
 import FrontStoreHeader from '../../../components/front/FrontStoreHeader'
-import FrontBottomNav from '../../../components/front/FrontBottomNav'
 import ProductGallery from '../../../components/front/pdp/ProductGallery'
 import VoicePlayer from '../../../components/front/pdp/VoicePlayer'
 import DiscountTimer from '../../../components/front/pdp/DiscountTimer'
+import ProductSpecs from '../../../components/front/pdp/ProductSpecs'
+import { ClothingVariants, WholesaleUnits } from '../../../components/front/pdp/ProductVariants'
+import PdpBottomBar from '../../../components/front/pdp/PdpBottomBar'
 
-import checkIcon from '../../../assets/images/front/pdp/check.svg'
-import cartShopIcon from '../../../assets/images/front/pdp/cart-shop.svg'
-import addIcon from '../../../assets/images/front/pdp/add.svg'
-import minusIcon from '../../../assets/images/front/pdp/minus.svg'
 import bookmarkIcon from '../../../assets/images/front/pdp/bookmark.svg'
 import shareIcon from '../../../assets/images/front/pdp/share-1.svg'
 
@@ -83,30 +81,6 @@ const PRODUCTS = {
   },
 }
 
-function Checkbox({ checked }) {
-  return (
-    <div
-      className={`w-3 h-3 rounded-[6px] shrink-0 flex items-center justify-center border transition-colors ${
-        checked ? 'bg-text-strong border-text-strong' : 'bg-bg-main border-border-light'
-      }`}
-    >
-      {checked && <img src={checkIcon} alt="" className="w-2 h-2" />}
-    </div>
-  )
-}
-
-function PrimaryCheckbox({ checked }) {
-  return (
-    <div
-      className={`w-4 h-4 rounded-[4px] shrink-0 flex items-center justify-center border transition-colors ${
-        checked ? 'bg-primary border-primary' : 'bg-bg-main border-border-light'
-      }`}
-    >
-      {checked && <img src={checkIcon} alt="" className="w-2.5 h-2.5" />}
-    </div>
-  )
-}
-
 const FrontPdpScreen = () => {
   const { type = 'shirt' } = useParams()
   const product = PRODUCTS[type] || PRODUCTS.shirt
@@ -114,7 +88,6 @@ const FrontPdpScreen = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('brochure')
 
-  // Clothing variants
   const [selectedColor, setSelectedColor] = useState(
     product.type === 'clothing' ? product.colors.length - 1 : 0
   )
@@ -122,7 +95,6 @@ const FrontPdpScreen = () => {
     product.type === 'clothing' ? product.sizes.length - 1 : 0
   )
 
-  // Wholesale unit quantities
   const [unitQty, setUnitQty] = useState({})
 
   const toggleUnit = (unitName) => {
@@ -228,167 +200,43 @@ const FrontPdpScreen = () => {
             </div>
           </div>
 
-          {/* Variants */}
-          <div className="flex flex-col gap-1.5">
-            {product.type === 'clothing' && (
-              <>
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-text-strong text-sm font-semibold leading-6 text-right">
-                    رنگ : {product.colors[selectedColor]?.name}
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {product.colors.map((color, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setSelectedColor(i)}
-                        className={`flex items-center gap-1 px-1.5 py-0.5 rounded-lg transition-colors ${
-                          selectedColor === i ? 'bg-text-heading/15' : 'bg-text-heading/10'
-                        }`}
-                      >
-                        <Checkbox checked={selectedColor === i} />
-                        <img src={color.ellipse} alt={color.name} className="w-3 h-3" />
-                        <span className="text-text-heading text-xs leading-5">{color.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+          {product.type === 'clothing' && (
+            <ClothingVariants
+              colors={product.colors}
+              sizes={product.sizes}
+              selectedColor={selectedColor}
+              selectedSize={selectedSize}
+              onColorChange={setSelectedColor}
+              onSizeChange={setSelectedSize}
+            />
+          )}
 
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-text-strong text-sm font-semibold leading-6 text-right">
-                    سایز : {product.sizes[selectedSize]}
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {product.sizes.map((size, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setSelectedSize(i)}
-                        className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-text-heading/10"
-                      >
-                        <Checkbox checked={selectedSize === i} />
-                        <span className="text-text-heading text-xs leading-5">{size}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
+          {product.type === 'wholesale' && (
+            <WholesaleUnits
+              units={product.units}
+              unitQty={unitQty}
+              onToggle={toggleUnit}
+              onChangeQty={changeQty}
+            />
+          )}
 
-            {product.type === 'wholesale' && (
-              <div className="flex flex-col gap-0">
-                <span className="text-text-strong text-sm font-semibold leading-6 text-right mb-1.5">
-                  واحد فروش
-                </span>
-                {product.units.map((unit) => {
-                  const isChecked = !!unitQty[unit.name]
-                  const qty = unitQty[unit.name] || 0
-                  return (
-                    <div
-                      key={unit.name}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => toggleUnit(unit.name)}
-                      onKeyDown={(e) =>
-                        (e.key === 'Enter' || e.key === ' ') && toggleUnit(unit.name)
-                      }
-                      className="flex items-center gap-2 border border-border-light rounded-lg px-3 py-1.5 bg-bg-main mb-2 cursor-pointer"
-                    >
-                      <PrimaryCheckbox checked={isChecked} />
-                      <div className="flex-1 flex flex-col items-start gap-0.5 text-right">
-                        <span className="text-text-weak text-xs leading-5">{unit.name}</span>
-                        <span className="text-text-strong text-sm font-semibold leading-6">
-                          {formatFarsi(unit.packSize)} {unit.packUnit}
-                        </span>
-                      </div>
-                      {isChecked && (
-                        <div className="flex items-center gap-1 rounded-lg px-1 py-1">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); changeQty(unit.name, 1) }}
-                            className="w-5 h-5 flex items-center justify-center"
-                          >
-                            <img src={addIcon} alt="+" className="w-5 h-5" />
-                          </button>
-                          <span className="text-primary text-sm font-semibold leading-6 min-w-[20px] text-center">
-                            {formatFarsi(qty)}
-                          </span>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); changeQty(unit.name, -1) }}
-                            className="w-5 h-5 flex items-center justify-center"
-                          >
-                            <img src={minusIcon} alt="−" className="w-5 h-5" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Product Specs */}
-          <div className="flex flex-col gap-1.5">
-            <span className="text-text-strong text-sm font-semibold leading-6 text-right">
-              مشخصات کالا
-            </span>
-            <div className="flex gap-2 items-center flex-wrap">
-              {product.specs.map((spec, i) => (
-                <div key={i} className="bg-bg-base flex flex-col px-3 py-1.5 rounded-lg gap-0.5">
-                  <span className="text-text-weak text-xs leading-5">{spec.label}</span>
-                  <span className="text-text-strong text-sm font-semibold leading-6">{spec.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <ProductSpecs specs={product.specs} />
 
           <div className="h-20" />
         </div>
       </div>
 
-      {/* Sticky Bottom Bar */}
-      <div className="sticky bottom-0 bg-bg-main border-t border-border-light shrink-0">
-        <div className="flex items-center justify-between px-4 py-2">
-          {product.type === 'clothing' ? (
-            <button className="bg-header-from text-text-white text-sm rounded-xl px-4 py-3">
-              افزودن به سبد
-            </button>
-          ) : hasSelection ? (
-            <div className="flex items-center gap-2">
-              <button className="rounded-xl p-1">
-                <img src={cartShopIcon} alt="افزودن به سبد" className="w-6 h-6" />
-              </button>
-              <div className="flex items-center gap-1.5">
-                {selectedUnits.map((unit, i) => (
-                  <div key={unit.name} className="flex items-center gap-1">
-                    {i > 0 && <span className="text-text-weak text-sm">|</span>}
-                    <span className="text-text-heading text-sm font-bold leading-6">
-                      {formatFarsi(unitQty[unit.name])}
-                    </span>
-                    <span className="text-text-weak text-sm leading-6">{unit.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          <div className="flex flex-col items-end">
-            {product.type === 'clothing' && product.originalPrice && (
-              <span className="text-text-weak text-xs line-through leading-4">
-                {formatFarsi(product.originalPrice)} هزارتومان
-              </span>
-            )}
-            <div className="flex items-center gap-1">
-              <span className={`text-base font-bold leading-8 ${accentColor}`}>
-                {product.type === 'wholesale' && hasSelection
-                  ? formatFarsi(totalPrice)
-                  : formatFarsi(product.price)}
-              </span>
-              <span className="text-text-weak text-sm leading-6">هزارتومان</span>
-            </div>
-          </div>
-        </div>
-
-        <FrontBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-      </div>
+      <PdpBottomBar
+        productType={product.type}
+        price={totalPrice}
+        originalPrice={product.originalPrice}
+        accentColor={accentColor}
+        hasSelection={hasSelection}
+        selectedUnits={selectedUnits}
+        unitQty={unitQty}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
       <BurgerMenuDrawer isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
     </div>
