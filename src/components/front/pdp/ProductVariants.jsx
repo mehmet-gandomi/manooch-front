@@ -28,8 +28,7 @@ function PrimaryCheckbox({ checked }) {
   )
 }
 
-// Clothing variant (color + size pickers)
-export function ClothingVariants({
+export function VariantPicker({
   colors,
   sizes,
   selectedColor,

@@ -7,7 +7,7 @@ import ProductGallery from '../../../components/front/pdp/ProductGallery'
 import VoicePlayer from '../../../components/front/pdp/VoicePlayer'
 import DiscountTimer from '../../../components/front/pdp/DiscountTimer'
 import ProductSpecs from '../../../components/front/pdp/ProductSpecs'
-import { ClothingVariants, WholesaleUnits } from '../../../components/front/pdp/ProductVariants'
+import { VariantPicker, WholesaleUnits } from '../../../components/front/pdp/ProductVariants'
 import PdpBottomBar from '../../../components/front/pdp/PdpBottomBar'
 
 import bookmarkIcon from '../../../assets/images/front/pdp/bookmark.svg'
@@ -201,7 +201,7 @@ const FrontPdpScreen = () => {
           </div>
 
           {product.type === 'clothing' && (
-            <ClothingVariants
+            <VariantPicker
               colors={product.colors}
               sizes={product.sizes}
               selectedColor={selectedColor}
