@@ -11,6 +11,9 @@ import bookmarkIcon from '../../../assets/images/front/pdp/bookmark.svg'
 import shareIcon from '../../../assets/images/front/pdp/share-1.svg'
 import playCircleIcon from '../../../assets/images/front/pdp/play-circle.svg'
 import checkIcon from '../../../assets/images/front/pdp/check.svg'
+import CartShop from '../../../assets/images/front/pdp/cart-shop.svg'
+import add from '../../../assets/images/front/pdp/add.svg'
+import minus from '../../../assets/images/front/pdp/minus.svg'
 
 // Bottom nav icons
 import locationLoveIcon from '../../../assets/images/front/pdp/location-love-2.svg'
@@ -191,29 +194,29 @@ const FrontPdpScreen = () => {
       {/* Header */}
       <div className={`bg-gradient-to-b ${headerGradient} rounded-b-xl px-4 pb-4 shrink-0`}>
         <div className="flex items-center justify-between pt-4 pb-2">
-          {/* Left: back + cart */}
-          <div className="flex items-center gap-6">
-            <button onClick={() => navigate(-1)}>
-              <img src={arrowLeftIcon} alt="بازگشت" className="w-6 h-6" />
-            </button>
-            <button>
-              <img src={cartIcon} alt="سبد خرید" className="w-6 h-6" />
-            </button>
-          </div>
           {/* Right: shop info + avatar + menu */}
           <div className="flex items-center gap-2">
-            <div className="flex flex-col items-end">
-              <div className="flex items-center gap-1">
-                <img src={verifyIcon} alt="" className="w-4 h-4" />
-                <span className="text-text-white text-sm font-bold leading-6">رستوران ژیوان</span>
-              </div>
-              <span className="text-text-disable-weak text-sm leading-6">کافه رستوران</span>
-            </div>
+            <button>
+              <img src={menuIcon} alt="منو" className="w-6 h-6" />
+            </button>
             <div className="w-10 h-10 rounded-full overflow-hidden shrink-0">
               <img src={avatarImg} alt="آواتار" className="w-full h-full object-cover" />
             </div>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1">
+                <span className="text-text-white text-sm font-bold leading-6">رستوران ژیوان</span>
+                <img src={verifyIcon} alt="" className="w-4 h-4" />
+              </div>
+              <span className="text-text-disable-weak text-sm leading-6">کافه رستوران</span>
+            </div>
+          </div>
+          {/* Left: back + cart */}
+          <div className="flex items-center gap-6">
             <button>
-              <img src={menuIcon} alt="منو" className="w-6 h-6" />
+              <img src={cartIcon} alt="سبد خرید" className="w-6 h-6" />
+            </button>
+            <button onClick={() => navigate(-1)}>
+              <img src={arrowLeftIcon} alt="بازگشت" className="w-6 h-6" />
             </button>
           </div>
         </div>
@@ -222,7 +225,7 @@ const FrontPdpScreen = () => {
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-0.5 justify-end px-4 py-2">
+        <div className="flex items-center gap-0.5 px-4 py-2">
           {product.breadcrumb.map((crumb, i) => (
             <div key={i} className="flex items-center gap-0.5">
               {i > 0 && <span className="text-text-weak text-sm">/</span>}
@@ -300,15 +303,15 @@ const FrontPdpScreen = () => {
           {/* Header row: waveform + name */}
           <div className="border-b border-dashed border-border-light pb-2 flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              {/* Voice waveform player */}
-              <div className="bg-bg-base rounded-xl px-2 py-1 flex items-center gap-2">
-                <Waveform variant={product.headerVariant} />
-                <img src={playCircleIcon} alt="پخش" className="w-5 h-5 shrink-0" />
-              </div>
               {/* Product name */}
-              <span className="text-text-strong text-sm font-semibold leading-6 flex-1 text-right pr-2">
+              <span className="text-text-strong text-sm font-semibold leading-6 flex-1 text-right pl-2">
                 {product.name}
               </span>
+              {/* Voice waveform player */}
+              <div className="bg-bg-base rounded-xl px-2 py-1 flex items-center gap-2">
+                <img src={playCircleIcon} alt="پخش" className="w-5 h-5 shrink-0" />
+                <Waveform variant={product.headerVariant} />
+              </div>
             </div>
 
             {/* Description */}
@@ -318,18 +321,11 @@ const FrontPdpScreen = () => {
 
             {/* Actions + Tags */}
             <div className="flex items-center justify-between px-1 py-1.5">
-              {/* Bookmark + share */}
-              <div className="flex items-center gap-3">
-                <button>
-                  <img src={bookmarkIcon} alt="ذخیره" className="w-4 h-4" />
-                </button>
-                <button>
-                  <img src={shareIcon} alt="اشتراک‌گذاری" className="w-4 h-4" />
-                </button>
-              </div>
-
               {/* Tags */}
               <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg backdrop-blur-sm bg-text-heading/10">
+                  <span className="text-text-heading text-xs leading-5">{product.category}</span>
+                </div>
                 <div
                   className={`flex items-center gap-1 px-1.5 py-0.5 rounded-lg backdrop-blur-sm ${
                     product.headerVariant === 'dark'
@@ -345,9 +341,15 @@ const FrontPdpScreen = () => {
                     {product.code}
                   </span>
                 </div>
-                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg backdrop-blur-sm bg-text-heading/10">
-                  <span className="text-text-heading text-xs leading-5">{product.category}</span>
-                </div>
+              </div>
+              {/* Bookmark + share */}
+              <div className="flex items-center gap-3">
+                <button>
+                  <img src={shareIcon} alt="اشتراک‌گذاری" className="w-4 h-4" />
+                </button>
+                <button>
+                  <img src={bookmarkIcon} alt="ذخیره" className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
@@ -365,7 +367,7 @@ const FrontPdpScreen = () => {
                       {product.colors[selectedColor]?.name}
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-2 justify-end">
+                  <div className="flex flex-wrap gap-2">
                     {product.colors.map((color, i) => (
                       <button
                         key={i}
@@ -376,12 +378,12 @@ const FrontPdpScreen = () => {
                             : 'bg-text-heading/10'
                         }`}
                       >
-                        <span className="text-text-heading text-xs leading-5">{color.name}</span>
-                        <img src={color.ellipse} alt={color.name} className="w-3 h-3" />
                         <Checkbox
                           checked={selectedColor === i}
                           onToggle={() => setSelectedColor(i)}
                         />
+                        <img src={color.ellipse} alt={color.name} className="w-3 h-3" />
+                        <span className="text-text-heading text-xs leading-5">{color.name}</span>
                       </button>
                     ))}
                   </div>
@@ -395,18 +397,18 @@ const FrontPdpScreen = () => {
                       {product.sizes[selectedSize]}
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-2 justify-end">
+                  <div className="flex flex-wrap gap-2">
                     {product.sizes.map((size, i) => (
                       <button
                         key={i}
                         onClick={() => setSelectedSize(i)}
                         className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg backdrop-blur-sm bg-text-heading/10"
                       >
-                        <span className="text-text-heading text-xs leading-5">{size}</span>
                         <Checkbox
                           checked={selectedSize === i}
                           onToggle={() => setSelectedSize(i)}
                         />
+                        <span className="text-text-heading text-xs leading-5">{size}</span>
                       </button>
                     ))}
                   </div>
@@ -429,6 +431,11 @@ const FrontPdpScreen = () => {
                         onClick={() => toggleUnit(unit.name)}
                         className="w-full flex items-center justify-end gap-2 border border-border-light rounded-lg px-3 py-1.5 bg-bg-main mb-2"
                       >
+                        <PrimaryCheckbox
+                          checked={isChecked}
+                          onToggle={() => toggleUnit(unit.name)}
+                        />
+
                         <div className="flex-1 flex flex-col items-start gap-1 text-right">
                           <span className="text-text-weak text-xs leading-5">{unit.name}</span>
                           <span className="text-text-strong text-sm font-semibold leading-6">
@@ -438,29 +445,24 @@ const FrontPdpScreen = () => {
 
                         {/* Stepper (visible when selected) */}
                         {isChecked && (
-                          <div className="flex items-center gap-1.5 bg-bg-base rounded-lg px-1.5 py-1">
+                          <div className="flex items-center gap-1.5 rounded-lg px-1.5 py-1">
                             <button
-                              onClick={(e) => { e.stopPropagation(); changeQty(unit.name, -1) }}
+                              onClick={(e) => { e.stopPropagation(); changeQty(unit.name, 1) }}
                               className="w-5 h-5 flex items-center justify-center text-text-weak text-base leading-none"
                             >
-                              −
+                              <img src={add} alt="زیاد" />
                             </button>
                             <span className="text-primary text-sm font-semibold leading-6 min-w-[16px] text-center">
                               {formatFarsi(qty)}
                             </span>
                             <button
-                              onClick={(e) => { e.stopPropagation(); changeQty(unit.name, 1) }}
+                              onClick={(e) => { e.stopPropagation(); changeQty(unit.name, -1) }}
                               className="w-5 h-5 flex items-center justify-center text-text-weak text-base leading-none"
                             >
-                              +
+                              <img src={minus} alt="کم" />
                             </button>
                           </div>
                         )}
-
-                        <PrimaryCheckbox
-                          checked={isChecked}
-                          onToggle={() => toggleUnit(unit.name)}
-                        />
                       </button>
                     </div>
                   )
@@ -474,11 +476,11 @@ const FrontPdpScreen = () => {
             <div className="w-full text-right">
               <span className="text-text-strong text-sm font-semibold leading-6">مشخصات کالا</span>
             </div>
-            <div className="flex gap-2 items-center justify-end flex-wrap">
+            <div className="flex gap-2 items-center flex-wrap">
               {product.specs.map((spec, i) => (
                 <div
                   key={i}
-                  className="bg-bg-base flex flex-col items-end px-3 py-1.5 rounded-lg gap-1"
+                  className="bg-bg-base flex flex-col px-3 py-1.5 rounded-lg gap-1"
                 >
                   <span className="text-text-weak text-xs leading-5">{spec.label}</span>
                   <span className="text-text-strong text-sm font-semibold leading-6">{spec.value}</span>
@@ -495,21 +497,17 @@ const FrontPdpScreen = () => {
       {/* Sticky Bottom Bar */}
       <div className="sticky bottom-0 bg-bg-main border-t border-border-light shrink-0">
         <div className="flex items-center justify-between px-4 py-2">
-          {/* Price */}
-          <div className="flex items-center gap-1">
-            <span className="text-text-weak text-sm leading-6">هزارتومان</span>
-            <span className={`text-base font-bold leading-8 ${accentColor}`}>
-              {formatFarsi(product.price)}
-            </span>
-          </div>
-
           {/* Action */}
           {product.type === 'clothing' ? (
-            <button className="bg-text-strong text-text-white text-sm rounded-xl px-4 py-2">
+            <button className="bg-header-from text-text-white text-sm rounded-lg px-4 py-3">
               افزودن به سبد
             </button>
           ) : hasSelection ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              {/* Cart icon button */}
+              <button className="rounded-xl p-2">
+                <img src={CartShop} alt="افزودن" className="w-6 h-6" />
+              </button>
               {/* Quantity summary */}
               <div className="flex items-center gap-1.5">
                 {selectedUnits.map((unit, i) => (
@@ -524,28 +522,30 @@ const FrontPdpScreen = () => {
                   </div>
                 ))}
               </div>
-              {/* Cart icon button */}
-              <button className="bg-primary text-text-white rounded-xl p-2">
-                <img src={cartIcon} alt="افزودن" className="w-6 h-6 brightness-[100]" />
-              </button>
             </div>
           ) : null}
+          
+          {/* Price */}
+          <div className="flex items-center gap-1">
+            <span className={`text-base font-bold leading-8 ${accentColor}`}>
+              {formatFarsi(product.price)}
+            </span>
+            <span className="text-text-weak text-sm leading-6">هزارتومان</span>
+          </div>
         </div>
 
         {/* Bottom Navigation */}
         <div className="flex border-t border-border-light">
           {[
-            { icon: locationLoveIcon, alt: 'علاقه‌مندی‌ها' },
-            { icon: linkIcon, alt: 'لینک' },
-            { icon: albumImageIcon, alt: 'گالری' },
-            { icon: messages2Icon, alt: 'پیام‌ها' },
             { icon: brochureIcon, alt: 'کاتالوگ', active: true },
+            { icon: messages2Icon, alt: 'پیام‌ها' },
+            { icon: albumImageIcon, alt: 'گالری' },
+            { icon: linkIcon, alt: 'لینک' },
+            { icon: locationLoveIcon, alt: 'علاقه‌مندی‌ها' },
           ].map(({ icon, alt, active }) => (
             <button
               key={alt}
-              className={`flex-1 flex flex-col items-center py-4 ${
-                active ? 'border-t-2 border-primary' : ''
-              }`}
+              className={`flex-1 flex flex-col items-center py-4`}
             >
               <img src={icon} alt={alt} className={`w-8 h-8 ${active ? 'icon-accent' : ''}`} />
             </button>
