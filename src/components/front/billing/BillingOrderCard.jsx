@@ -1,45 +1,50 @@
-const STATUS_STYLES = {
-  new:      { label: 'جدید',               bg: 'rgba(75,69,230,0.1)',  color: '#3f37cb' },
-  paid:     { label: 'پرداخت شده',         bg: 'rgba(0,224,67,0.1)',   color: '#00c035' },
-  shipping: { label: 'ارسال برای مشتری',   bg: 'rgba(75,69,230,0.1)',  color: '#3f37cb' },
-  pending:  { label: 'در انتظار پرداخت',   bg: 'rgba(32,42,55,0.1)',   color: '#202a37' },
+const numberFaGrouped = new Intl.NumberFormat('fa-IR')
+const numberFa = new Intl.NumberFormat('fa-IR', { useGrouping: false })
+
+const statusStyles = {
+  new:      'bg-order-waiting-soft text-menu-accent',
+  paid:     'bg-success-soft text-success',
+  shipping: 'bg-order-new-soft text-menu-warning',
+  pending:  'bg-bg-soft text-text-moderate',
 }
 
-const BillingOrderCard = ({ orderNumber, status, customerName, itemCount, date, totalPrice, onClick }) => {
-  const s = STATUS_STYLES[status] || STATUS_STYLES.new
-
-  return (
-    <button
-      onClick={onClick}
-      className="w-full text-right bg-bg-main border border-border-light rounded-xl px-4 py-3 flex flex-col gap-2"
-    >
-      {/* Row 1: order number + status badge */}
-      <div className="flex items-center justify-between">
-        <span className="text-text-strong text-sm font-semibold leading-6">{orderNumber}</span>
-        <span
-          className="text-xs font-medium px-2 py-0.5 rounded-full"
-          style={{ backgroundColor: s.bg, color: s.color }}
-        >
-          {s.label}
-        </span>
-      </div>
-
-      {/* Row 2: customer name + item count */}
-      <div className="flex items-center gap-1.5">
-        <span className="text-text-moderate text-sm leading-6">{customerName}</span>
-        <span className="text-text-weak text-xs leading-6">·</span>
-        <span className="text-text-weak text-xs leading-6">{itemCount} آیتم</span>
-      </div>
-
-      {/* Row 3: date (visual left) + price (visual right) */}
-      <div className="flex items-center justify-between">
-        <span className="text-text-weak text-xs leading-6">{date}</span>
-        <span className="text-text-strong text-sm font-bold leading-6" dir="ltr">
-          {new Intl.NumberFormat('fa-IR').format(totalPrice)} تومان
-        </span>
-      </div>
-    </button>
-  )
+const statusLabels = {
+  new:      'جدید',
+  paid:     'پرداخت شده',
+  shipping: 'ارسال برای مشتری',
+  pending:  'در انتظار پرداخت',
 }
+
+const BillingOrderCard = ({ orderNumber, status, customerName, itemCount, date, time, totalPrice, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="block w-full border-b border-border-light py-4 text-right last:border-b-0"
+  >
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-sm font-bold leading-6 text-text-strong">
+        شماره سفارش : {numberFa.format(orderNumber)}
+      </span>
+      <span className={`rounded-lg px-2 py-0.5 text-xs leading-5 ${statusStyles[status] ?? statusStyles.pending}`}>
+        {statusLabels[status]}
+      </span>
+    </div>
+
+    <div className="mt-2 flex items-center gap-2 text-xs leading-5 text-text-moderate">
+      <span>{`اقلام فاکتور: ${numberFa.format(itemCount)} کالا`}</span>
+      <span className="h-4 border-r border-border-light" />
+      <span className="truncate">{customerName}</span>
+    </div>
+
+    <div className="mt-1 flex items-center justify-between gap-3">
+      <span className="text-sm font-bold leading-6 text-text-strong">
+        {`${numberFaGrouped.format(totalPrice)} تومان`}
+      </span>
+      <span className="text-xs font-normal leading-5 text-text-placeholder">
+        {date} - {time}
+      </span>
+    </div>
+  </button>
+)
 
 export default BillingOrderCard
