@@ -2,12 +2,11 @@ import { useMemo, useState } from 'react'
 
 import FrontBottomNav from '../../../components/front/FrontBottomNav'
 import BurgerMenuDrawer from '../../../components/front/BurgerMenuDrawer'
+import AdminScreenHeader from '../../../components/admin/shared/AdminScreenHeader'
 import BillingOrderCard from '../../../components/front/billing/BillingOrderCard'
 import BillingOrderDetail from '../../../components/front/billing/BillingOrderDetail'
 
-import menuIcon from '../../../assets/images/front/pdp/menu.svg'
 import checkbookIcon from '../../../assets/images/admin/checkbook.svg'
-import arrowLeftIcon from '../../../assets/images/admin/arrow-left-1.svg'
 import searchIcon from '../../../assets/images/admin/search-normal.svg'
 import settingIcon from '../../../assets/images/admin/product/setting-5.svg'
 
@@ -21,7 +20,7 @@ const TABS = [
 
 const MOCK_ORDERS = [
   {
-    id: 1, orderNumber: 1045, status: 'new',
+    id: 1, orderNumber: 1045, isNew: true, status: 'new',
     customerName: 'علی محمدی', itemCount: 3,
     date: '۱۴۰۳/۰۲/۱۵', time: '۱۴:۳۲', totalPrice: 1250000,
     province: 'تهران', city: 'تهران', phone: '09121234567',
@@ -32,7 +31,7 @@ const MOCK_ORDERS = [
     ],
   },
   {
-    id: 2, orderNumber: 1044, status: 'paid',
+    id: 2, orderNumber: 1044, isNew: false, status: 'paid',
     customerName: 'فاطمه رضایی', itemCount: 1,
     date: '۱۴۰۳/۰۲/۱۴', time: '۱۱:۱۵', totalPrice: 480000,
     province: 'اصفهان', city: 'اصفهان', phone: '09139876543',
@@ -42,7 +41,7 @@ const MOCK_ORDERS = [
     ],
   },
   {
-    id: 3, orderNumber: 1043, status: 'shipping',
+    id: 3, orderNumber: 1043, isNew: false, status: 'shipping',
     customerName: 'محمد کریمی', itemCount: 5,
     date: '۱۴۰۳/۰۲/۱۳', time: '۰۹:۴۵', totalPrice: 2100000,
     province: 'مشهد', city: 'مشهد', phone: '09153334455',
@@ -54,7 +53,7 @@ const MOCK_ORDERS = [
     ],
   },
   {
-    id: 4, orderNumber: 1042, status: 'pending',
+    id: 4, orderNumber: 1042, isNew: false, status: 'pending',
     customerName: 'زهرا حسینی', itemCount: 2,
     date: '۱۴۰۳/۰۲/۱۲', time: '۱۶:۵۸', totalPrice: 870000,
     province: 'شیراز', city: 'شیراز', phone: '09170001122',
@@ -65,7 +64,7 @@ const MOCK_ORDERS = [
     ],
   },
   {
-    id: 5, orderNumber: 1041, status: 'paid',
+    id: 5, orderNumber: 1041, isNew: false, status: 'paid',
     customerName: 'امیر تهرانی', itemCount: 4,
     date: '۱۴۰۳/۰۲/۱۱', time: '۱۳:۲۰', totalPrice: 1680000,
     province: 'کرج', city: 'کرج', phone: '09126667788',
@@ -78,11 +77,17 @@ const MOCK_ORDERS = [
 ]
 
 const BillingScreen = () => {
-  const [activeTab, setActiveTab]       = useState('orders')
-  const [bottomTab, setBottomTab]       = useState('brochure')
-  const [searchTerm, setSearchTerm]     = useState('')
+  const [activeTab, setActiveTab]         = useState('orders')
+  const [bottomTab, setBottomTab]         = useState('brochure')
+  const [searchTerm, setSearchTerm]       = useState('')
   const [selectedOrder, setSelectedOrder] = useState(null)
-  const [isMenuOpen, setIsMenuOpen]     = useState(false)
+  const [isMenuOpen, setIsMenuOpen]       = useState(false)
+
+  const handleBack = () => {
+    if (selectedOrder) {
+      setSelectedOrder(null)
+    }
+  }
 
   const filteredOrders = useMemo(() => {
     const term = searchTerm.trim()
@@ -94,26 +99,18 @@ const BillingScreen = () => {
 
   return (
     <div dir="rtl" className="mx-auto max-w-sm min-h-screen flex flex-col bg-bg-main">
-      {/* Dark gradient header */}
-      <div className="bg-gradient-to-b from-header-from to-header-to rounded-b-xl px-4 pt-4 pb-4 shrink-0">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setIsMenuOpen(true)}>
-              <img src={menuIcon} alt="منو" className="w-6 h-6" />
-            </button>
-            <img src={checkbookIcon} alt="" className="w-6 h-6 brightness-0 invert" />
-            <span className="text-text-white text-base font-semibold leading-6">سفارشات</span>
-          </div>
-          <button onClick={() => selectedOrder ? setSelectedOrder(null) : null} aria-label="بازگشت">
-            <img src={arrowLeftIcon} alt="" className="w-6 h-6 brightness-0 invert" />
-          </button>
-        </div>
-      </div>
-
       {/* Body */}
       <div className="flex-1 overflow-y-auto px-4 pt-4">
-        {/* Tabs — pill style matching admin */}
-        <div className="rounded-2xl bg-bg-base p-1">
+        <AdminScreenHeader
+          icon={checkbookIcon}
+          iconClassName="icon-strong"
+          title="لیست سفارشات"
+          subtitle="سفارشات خود را مشاهده کنید"
+          onBack={handleBack}
+        />
+
+        {/* Tabs — pill style */}
+        <div className="mt-5 rounded-2xl bg-bg-base p-1">
           <div className="grid grid-cols-3 gap-1">
             {TABS.map(tab => {
               const isActive = tab.key === activeTab
@@ -137,22 +134,14 @@ const BillingScreen = () => {
 
         {activeTab === 'orders' ? (
           selectedOrder ? (
-            /* Detail view */
+            /* Detail view — back is handled by header */
             <div className="mt-4">
-              <button
-                type="button"
-                onClick={() => setSelectedOrder(null)}
-                className="mb-3 flex items-center gap-1 text-primary text-sm leading-6"
-              >
-                <img src={arrowLeftIcon} alt="" className="w-4 h-4 icon-accent" />
-                بازگشت به لیست
-              </button>
               <BillingOrderDetail order={selectedOrder} />
             </div>
           ) : (
             /* List view */
             <>
-              {/* Search — same style as admin */}
+              {/* Search */}
               <div className="relative mt-4">
                 <img
                   src={searchIcon}
@@ -169,7 +158,7 @@ const BillingScreen = () => {
                 />
               </div>
 
-              {/* Filter bar — same style as admin */}
+              {/* Filter bar */}
               <div className="mt-4 flex items-center justify-between gap-3">
                 <span className="text-xs font-normal leading-5 text-text-moderate">
                   {numberFormatter.format(MOCK_ORDERS.length)} سفارش
@@ -190,6 +179,7 @@ const BillingScreen = () => {
                     <BillingOrderCard
                       key={order.id}
                       orderNumber={order.orderNumber}
+                      isNew={order.isNew}
                       status={order.status}
                       customerName={order.customerName}
                       itemCount={order.itemCount}
@@ -208,7 +198,6 @@ const BillingScreen = () => {
             </>
           )
         ) : (
-          /* Empty state for other tabs */
           <div className="mt-16 rounded-2xl border border-dashed border-border-light px-4 py-8 text-center text-sm leading-6 text-text-moderate">
             موردی برای نمایش وجود ندارد.
           </div>
