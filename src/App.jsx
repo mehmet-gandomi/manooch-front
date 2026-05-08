@@ -14,6 +14,7 @@ import FrontDashboardScreen from './screens/front/dashboard/FrontDashboardScreen
 import LinkdooneScreen from './screens/front/linkdoone/LinkdooneScreen'
 import BillingScreen from './screens/front/billing/BillingScreen'
 import GalleryScreen from './screens/front/gallery/GalleryScreen'
+import AboutScreen from './screens/front/about/AboutScreen'
 
 function App() {
   return (
@@ -40,6 +41,8 @@ function App() {
         <Route path="/front/billing" element={<BillingScreen />} />
         <Route path="/front/gallery/:storeType" element={<GalleryScreen />} />
         <Route path="/front/gallery" element={<Navigate to="/front/gallery/restaurant" replace />} />
+        <Route path="/front/about/:storeType" element={<AboutScreen />} />
+        <Route path="/front/about" element={<Navigate to="/front/about/restaurant" replace />} />
       </Routes>
     </BrowserRouter>
   )
