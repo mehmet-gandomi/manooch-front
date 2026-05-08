@@ -148,13 +148,82 @@ Before creating anything new, check `src/components/ui/` and `src/components/adm
 
 ---
 
+## RTL Flex Adaptation (Critical)
+
+The app uses `dir="rtl"`. Figma generates code in **LTR order** (first DOM child = visual left). In RTL flex, **first DOM child = visual right**. Every `flex justify-between` row you copy from Figma must have its children **reversed** in the DOM.
+
+### The Rule
+
+| Desired visual position | DOM position (RTL) |
+|---|---|
+| Far RIGHT | **First** child |
+| Far LEFT | **Last** child |
+
+### Example — Figma (LTR) vs React (RTL)
+
+```jsx
+// ❌ Figma-generated order (LTR): [share LEFT] [chips RIGHT]
+<div className="flex justify-between">
+  <button>share</button>   {/* first → goes to RIGHT in RTL ✗ */}
+  <div>chips</div>         {/* second → goes to LEFT in RTL ✗ */}
+</div>
+
+// ✅ Correct for RTL: [chips RIGHT] [share LEFT]
+<div className="flex justify-between">
+  <div>chips</div>         {/* first → visual RIGHT ✓ */}
+  <button>share</button>   {/* second → visual LEFT ✓ */}
+</div>
+```
+
+### Applies at every nesting level
+
+Each nested flex container independently reverses order. For a row like  
+`[cart LEFT] [follow] [name] [avatar] [menu RIGHT]`:
+
+```jsx
+<div className="flex justify-between">
+  {/* FIRST → RIGHT cluster */}
+  <div className="flex gap-2">
+    <button>menu</button>    {/* first in group → rightmost */}
+    <img>avatar</img>
+    <span>name</span>
+    <button>follow</button>  {/* last in group → leftmost of right cluster */}
+  </div>
+  {/* SECOND → LEFT */}
+  <button>cart</button>
+</div>
+```
+
+### Scrollable rows
+
+For horizontally-scrollable product rows, RTL starts scroll from the right. Use `overflow-x-auto` without `justify-end` — RTL flex handles direction automatically:
+
+```jsx
+// ✅ Items start from RIGHT, scroll reveals more on the LEFT
+<div className="flex gap-2 overflow-x-auto no-scrollbar">
+  {items.map(...)}
+</div>
+```
+
+### Pagination dots
+
+Dots inside an `absolute`-positioned container still inherit RTL. Use `dir="ltr"` on the dots wrapper to keep the active dot on the left:
+
+```jsx
+<div dir="ltr" className="absolute bottom-3 left-3 flex gap-1.5">
+  {dots}
+</div>
+```
+
+---
+
 ## Hard rules
 
 - **Ask first** — if anything is unclear, ask before coding; one message, all questions at once
 - **Colors** — only named classes (`bg-primary`, `text-text-strong`), never `bg-[#hex]`
 - **Font sizes** — only named classes (`text-base`, `text-sm`), never `text-[16px]`
 - **Assets** — local imports only, never Figma CDN URLs (they expire in 7 days)
-- **RTL** — `dir="rtl"` on containers; text is right-aligned by default
+- **RTL** — `dir="rtl"` on containers; text is right-aligned by default; reverse Figma DOM order
 - **Font** — Ravi loaded via `@font-face` in `index.css`, never Google Fonts
 - **One screen = one route = one file** in `src/screens/`
 - **One Figma component = one file** in `src/components/`
