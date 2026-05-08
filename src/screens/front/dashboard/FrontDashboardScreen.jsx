@@ -8,6 +8,7 @@ import FilterBar from '../../../components/front/dashboard/FilterBar'
 import ProductCardH from '../../../components/front/dashboard/ProductCardH'
 import ProductCardGrid from '../../../components/front/dashboard/ProductCardGrid'
 import ProductSection from '../../../components/front/dashboard/ProductSection'
+import ShareSheet from '../../../components/front/dashboard/ShareSheet'
 
 import productImg from '../../../assets/images/front/pdp/product-image.png'
 
@@ -18,7 +19,7 @@ const STORES = {
     name: 'بدلیجات تاج محل',
     category: 'بورس کالاهای خاص',
     layout: 'list',
-    categories: ['دستبند', 'انگشتر', 'گوشواره', 'گردنبند'],
+    categories: ['همه', 'دستبند', 'انگشتر', 'گوشواره', 'گردنبند', 'زنجیر', 'آویز', 'ست', 'النگو'],
     products: [
       { id: 1, name: 'دستبند النگویی', subtitle: 'فروشگاه تاج محل', price: 300000, originalPrice: 380000, image: productImg },
       { id: 2, name: 'دستبند النگویی', subtitle: 'فروشگاه تاج محل', price: 300000, originalPrice: 380000, image: productImg },
@@ -27,6 +28,7 @@ const STORES = {
       { id: 5, name: 'گردنبند بهاری', subtitle: 'فروشگاه تاج محل', price: 180000, originalPrice: null, image: productImg },
     ],
     defaultFollowing: true,
+    storeUrl: 'https://manoch.site/tajmahal',
   },
   restaurant: {
     gradientFrom: '#ed1944',
@@ -41,26 +43,31 @@ const STORES = {
           { id: 1, name: 'وگنو پیتزا', subtitle: 'گوجه + زیتون + ریحون', price: 300000, originalPrice: 380000, image: productImg },
           { id: 2, name: 'پپرونی سالسا', subtitle: 'پپرونی + قارچ + فلفل دلمه', price: 300000, originalPrice: 380000, image: productImg },
           { id: 3, name: 'مارگاریتا', subtitle: 'گوجه + پنیر + ریحون', price: 280000, originalPrice: null, image: productImg },
+          { id: 4, name: 'فونگی پیتزا', subtitle: 'قارچ + پنیر + ریحون', price: 320000, originalPrice: null, image: productImg },
+          { id: 5, name: 'باربیکیو چیکن', subtitle: 'مرغ + سس باربیکیو', price: 350000, originalPrice: 400000, image: productImg },
         ],
       },
       {
         title: 'خدمات',
         products: [
-          { id: 4, name: 'وگنو پیتزا', subtitle: 'گوجه + زیتون + ریحون', price: 300000, originalPrice: 380000, image: productImg },
-          { id: 5, name: 'پپرونی سالسا', subtitle: 'پپرونی + قارچ + فلفل دلمه', price: 300000, originalPrice: 380000, image: productImg },
-          { id: 6, name: 'فونگی پیتزا', subtitle: 'قارچ + پنیر + ریحون', price: 320000, originalPrice: null, image: productImg },
+          { id: 6, name: 'وگنو پیتزا', subtitle: 'گوجه + زیتون + ریحون', price: 300000, originalPrice: 380000, image: productImg },
+          { id: 7, name: 'پپرونی سالسا', subtitle: 'پپرونی + قارچ + فلفل دلمه', price: 300000, originalPrice: 380000, image: productImg },
+          { id: 8, name: 'فونگی پیتزا', subtitle: 'قارچ + پنیر + ریحون', price: 320000, originalPrice: null, image: productImg },
+          { id: 9, name: 'مارگاریتا کلاسیک', subtitle: 'گوجه + پنیر + ریحون', price: 260000, originalPrice: null, image: productImg },
         ],
       },
       {
         title: 'فایل',
         products: [
-          { id: 7, name: 'وگنو پیتزا', subtitle: 'گوجه + زیتون + ریحون', price: 300000, originalPrice: 380000, image: productImg },
-          { id: 8, name: 'پپرونی سالسا', subtitle: 'پپرونی + قارچ + فلفل دلمه', price: 300000, originalPrice: 380000, image: productImg },
-          { id: 9, name: 'مارگاریتا', subtitle: 'گوجه + پنیر + ریحون', price: 280000, originalPrice: null, image: productImg },
+          { id: 10, name: 'وگنو پیتزا', subtitle: 'گوجه + زیتون + ریحون', price: 300000, originalPrice: 380000, image: productImg },
+          { id: 11, name: 'پپرونی سالسا', subtitle: 'پپرونی + قارچ + فلفل دلمه', price: 300000, originalPrice: 380000, image: productImg },
+          { id: 12, name: 'مارگاریتا', subtitle: 'گوجه + پنیر + ریحون', price: 280000, originalPrice: null, image: productImg },
+          { id: 13, name: 'کواترو فورماجی', subtitle: 'چهار نوع پنیر', price: 380000, originalPrice: null, image: productImg },
         ],
       },
     ],
     defaultFollowing: false,
+    storeUrl: 'https://manoch.site/zhivan',
   },
 }
 
@@ -69,6 +76,7 @@ const FrontDashboardScreen = () => {
   const store = STORES[storeType] || STORES.restaurant
 
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isShareOpen, setIsShareOpen] = useState(false)
   const [isFollowing, setIsFollowing] = useState(store.defaultFollowing)
   const [activeCategory, setActiveCategory] = useState(0)
   const [viewMode, setViewMode] = useState('list')
@@ -85,6 +93,7 @@ const FrontDashboardScreen = () => {
           isFollowing={isFollowing}
           onToggleFollow={() => setIsFollowing((v) => !v)}
           onMenuOpen={() => setIsMenuOpen(true)}
+          onShareClick={() => setIsShareOpen(true)}
         />
 
         {store.layout === 'list' ? (
@@ -127,6 +136,12 @@ const FrontDashboardScreen = () => {
       </div>
 
       <BurgerMenuDrawer isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+
+      <ShareSheet
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        storeUrl={store.storeUrl}
+      />
     </div>
   )
 }

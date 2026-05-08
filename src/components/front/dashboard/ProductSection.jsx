@@ -11,7 +11,7 @@ const ProductSection = ({ title, products }) => (
     </div>
 
     {/* Horizontal scroll — RTL naturally starts from the right */}
-    <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+    <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1 no-scrollbar">
       {products.map((product) => (
         <ProductCardV key={product.id} product={product} />
       ))}
