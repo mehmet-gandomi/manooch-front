@@ -11,6 +11,7 @@ import ShopReadyScreen from './screens/admin/onboarding/ShopReadyScreen'
 import AdminDashboardScreen from './screens/admin/dashboard/AdminDashboardScreen'
 import FrontPdpScreen from './screens/front/pdp/FrontPdpScreen'
 import FrontDashboardScreen from './screens/front/dashboard/FrontDashboardScreen'
+import LinkdooneScreen from './screens/front/linkdoone/LinkdooneScreen'
 
 function App() {
   return (
@@ -32,6 +33,8 @@ function App() {
         <Route path="/front/pdp" element={<Navigate to="/front/pdp/shirt" replace />} />
         <Route path="/front/dashboard/:storeType" element={<FrontDashboardScreen />} />
         <Route path="/front/dashboard" element={<Navigate to="/front/dashboard/restaurant" replace />} />
+        <Route path="/front/linkdoone/:storeType" element={<LinkdooneScreen />} />
+        <Route path="/front/linkdoone" element={<Navigate to="/front/linkdoone/restaurant" replace />} />
       </Routes>
     </BrowserRouter>
   )
