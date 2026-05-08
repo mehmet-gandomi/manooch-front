@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import FrontBottomNav from '../../../components/front/FrontBottomNav'
@@ -145,15 +145,15 @@ const AboutScreen = () => {
           ) : (
             <div className="flex items-center">
               {store.phones.map((phone, idx) => (
-                <>
-                  <div key={phone} className="flex-1 flex items-center justify-center gap-2">
+                <Fragment key={phone}>
+                  <div className="flex-1 flex items-center justify-center gap-2">
                     <CallIcon />
                     <span className="text-primary text-sm leading-6" dir="ltr">{phone}</span>
                   </div>
                   {idx < store.phones.length - 1 && (
-                    <div key={`div-${idx}`} className="w-px h-6 bg-border-light" />
+                    <div className="w-px h-6 bg-border-light" />
                   )}
-                </>
+                </Fragment>
               ))}
             </div>
           )}
