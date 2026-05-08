@@ -13,6 +13,7 @@ import FrontPdpScreen from './screens/front/pdp/FrontPdpScreen'
 import FrontDashboardScreen from './screens/front/dashboard/FrontDashboardScreen'
 import LinkdooneScreen from './screens/front/linkdoone/LinkdooneScreen'
 import BillingScreen from './screens/front/billing/BillingScreen'
+import GalleryScreen from './screens/front/gallery/GalleryScreen'
 
 function App() {
   return (
@@ -37,6 +38,8 @@ function App() {
         <Route path="/front/linkdoone/:storeType" element={<LinkdooneScreen />} />
         <Route path="/front/linkdoone" element={<Navigate to="/front/linkdoone/restaurant" replace />} />
         <Route path="/front/billing" element={<BillingScreen />} />
+        <Route path="/front/gallery/:storeType" element={<GalleryScreen />} />
+        <Route path="/front/gallery" element={<Navigate to="/front/gallery/restaurant" replace />} />
       </Routes>
     </BrowserRouter>
   )
