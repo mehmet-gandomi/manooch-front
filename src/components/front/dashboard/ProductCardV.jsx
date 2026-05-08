@@ -18,14 +18,14 @@ const ProductCardV = ({ product }) => (
     </div>
 
     {/* Price row: price RIGHT, هزارتومان LEFT */}
-    <div className="flex items-center gap-1 w-full">
+    <div className="flex items-center gap-1 w-full justify-end">
       {/* FIRST → RIGHT: prices */}
       <div className="flex items-center gap-1">
         <span className="text-text-strong text-xs font-semibold leading-5">
           {formatFarsi(product.price)}
         </span>
         {product.originalPrice && (
-          <span className="text-danger text-xs leading-5 line-through">
+          <span className="text-danger text-xs leading-5 line-through pr-l">
             {formatFarsi(product.originalPrice)}
           </span>
         )}
