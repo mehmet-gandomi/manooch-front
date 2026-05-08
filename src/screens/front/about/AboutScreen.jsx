@@ -99,10 +99,8 @@ const AboutScreen = () => {
             </div>
           </div>
 
-          <Divider />
-
           {/* درباره ما */}
-          <div className="flex flex-col gap-1.5 items-end">
+          <div className="flex flex-col gap-1.5">
             <span className="text-text-strong text-sm font-semibold leading-6">درباره ما</span>
             <p className="text-text-moderate text-sm leading-6 text-right w-full">{store.about}</p>
           </div>
@@ -113,24 +111,24 @@ const AboutScreen = () => {
           <div className="flex gap-3">
             {/* پشتیبانی آنلاین — purple outline, FIRST → visual RIGHT in RTL */}
             <button className="flex-1 flex items-center justify-center gap-2 border border-menu-accent rounded-xl py-2 px-4">
-              <span className="text-menu-accent text-sm leading-6">پشتیبانی آنلاین</span>
               <SendIcon />
+              <span className="text-menu-accent text-sm leading-6">پشتیبانی آنلاین</span>
             </button>
             {/* پشتیبانی تلفنی — blue outline */}
             <button className="flex-1 flex items-center justify-center gap-2 border border-primary rounded-xl py-2 px-4">
-              <span className="text-primary text-sm leading-6">پشتیبانی تلفنی</span>
               <CallIcon />
+              <span className="text-primary text-sm leading-6">پشتیبانی تلفنی</span>
             </button>
           </div>
 
           <Divider />
 
           {/* Address */}
-          <div className="flex flex-col gap-1.5 items-end">
+          <div className="flex flex-col gap-1.5">
             <span className="text-text-strong text-sm font-semibold leading-6">آدرس</span>
             <div className="flex items-center gap-1.5 w-full justify-end">
-              <p className="text-text-moderate text-sm leading-6 text-right flex-1">{store.address}</p>
               <LocationOutlineIcon />
+              <p className="text-text-moderate text-sm leading-6 text-right flex-1">{store.address}</p>
             </div>
           </div>
 
@@ -147,8 +145,8 @@ const AboutScreen = () => {
               {store.phones.map((phone, idx) => (
                 <Fragment key={phone}>
                   <div className="flex-1 flex items-center justify-center gap-2">
-                    <CallIcon />
                     <span className="text-primary text-sm leading-6" dir="ltr">{phone}</span>
+                    <CallIcon />
                   </div>
                   {idx < store.phones.length - 1 && (
                     <div className="w-px h-6 bg-border-light" />
