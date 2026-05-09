@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  name      String?
+  shop      Shop?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Shop {
+  id          String        @id @default(cuid())
+  userId      String        @unique
+  user        User          @relation(fields: [userId], references: [id])
+  name        String?
+  slug        String?       @unique
+  description String?
+  logoUrl     String?
+  categories  Category[]
+  attributes  Attribute[]
+  products    Product[]
+  gallery     GalleryItem[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  phone     String
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  shopId      String
+  shop        Shop      @relation(fields: [shopId], references: [id])
+  name        String
+  description String?
+  order       Int       @default(0)
+  imageSrc    String?
+  iconSrc     String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([shopId])
+}
+
+enum AttributeType {
+  COLOR
+  SIZE
+  TEXT
+}
+
+model Attribute {
+  id             String                @id @default(cuid())
+  shopId         String
+  shop           Shop                  @relation(fields: [shopId], references: [id])
+  name           String
+  type           AttributeType         @default(TEXT)
+  order          Int                   @default(0)
+  values         Json                  @default("[]")
+  featureEntries ProductFeatureEntry[]
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  @@index([shopId])
+}
+
+model Product {
+  id                  String                @id @default(cuid())
+  shopId              String
+  shop                Shop                  @relation(fields: [shopId], references: [id])
+  categoryId          String?
+  category            Category?             @relation(fields: [categoryId], references: [id])
+  name                String
+  description         String?
+  code                String?
+  basePrice           Int                   @default(0)
+  discountedPrice     Int?
+  hasDiscount         Boolean               @default(false)
+  inventory           Int                   @default(0)
+  hasVoiceDescription Boolean               @default(false)
+  voiceUrl            String?
+  images              ProductImage[]
+  featureEntries      ProductFeatureEntry[]
+  unitSales           UnitSale[]
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+
+  @@index([shopId])
+  @@index([categoryId])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  order     Int     @default(0)
+
+  @@index([productId])
+}
+
+model ProductFeatureEntry {
+  id          String             @id @default(cuid())
+  productId   String
+  product     Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attributeId String
+  attribute   Attribute          @relation(fields: [attributeId], references: [id])
+  selections  FeatureSelection[]
+
+  @@index([productId])
+}
+
+model FeatureSelection {
+  id             String              @id @default(cuid())
+  featureEntryId String
+  featureEntry   ProductFeatureEntry @relation(fields: [featureEntryId], references: [id], onDelete: Cascade)
+  name           String
+  hex            String?
+  inventory      Int                 @default(0)
+  price          Int?
+
+  @@index([featureEntryId])
+}
+
+model UnitSale {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String
+  price     Int     @default(0)
+  quantity  Int     @default(1)
+  inventory Int     @default(0)
+
+  @@index([productId])
+}
+
+model GalleryItem {
+  id        String   @id @default(cuid())
+  shopId    String
+  shop      Shop     @relation(fields: [shopId], references: [id])
+  name      String?
+  imageSrc  String
+  priority  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([shopId])
+}

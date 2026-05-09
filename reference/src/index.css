@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* Tints an SVG <img> to #737377 (token/text/default/moderate) */
+  .icon-moderate {
+    filter: brightness(0) invert(1) brightness(0.45);
+  }
+
+  /* Tints an SVG <img> to #16161d (token/text/default/strong) */
+  .icon-strong {
+    filter: brightness(0) saturate(100%);
+  }
+
+  /* Tints an SVG <img> to the success green used by status chips */
+  .icon-success {
+    filter: brightness(0) saturate(100%) invert(54%) sepia(29%) saturate(1255%) hue-rotate(100deg) brightness(92%) contrast(88%);
+  }
+
+  /* Tints hardcoded SVG icons to the active admin navigation accent. */
+  .icon-accent {
+    filter: brightness(0) saturate(100%) invert(30%) sepia(81%) saturate(1986%) hue-rotate(232deg) brightness(91%) contrast(99%);
+  }
+
+  .icon-auth-success {
+    filter: brightness(0) saturate(100%) invert(13%) sepia(18%) saturate(1025%) hue-rotate(174deg) brightness(93%) contrast(90%);
+  }
+}
+
+@font-face {
+  font-family: 'Ravi';
+  src: url('./assets/fonts/Ravi-VF.ttf') format('truetype');
+  font-weight: 100 900;
+}
+
+* {
+  font-family: 'Ravi', sans-serif;
+}
+
+body {
+  background-color: #fefefe;
+  direction: rtl;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
